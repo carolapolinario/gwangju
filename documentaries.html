@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentaries - Gwangju 5.18</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+    <style>
+        .page-title-fit {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(2rem, 8.2vw, 10rem); 
+            font-weight: 900;
+            margin-top: 40px;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            line-height: 0.9;
+            width: 100%;
+            display: block;
+            text-align: left;
+        }
+    
+        .doc-intro {
+            margin-bottom: 80px;
+            width: 100%;
+        }
+    
+        .doc-intro-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+    
+        .doc-intro p {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #333;
+            text-align: justify; 
+            hyphens: auto;
+            width: 100%;
+        }
+    
+        .doc-list {
+            margin-bottom: 120px;
+            width: 100%;
+        }
+    
+        .doc-item {
+            display: grid;
+            grid-template-columns: 60px 180px 1.5fr 2fr 40px; 
+            gap: 30px;
+            align-items: start;
+            padding: 30px 0;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+            color: inherit;
+            transition: opacity 0.2s;
+        }
+    
+        .doc-item:hover {
+            opacity: 0.7;
+        }
+    
+        .doc-year {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 14px;
+        }
+    
+        .doc-thumb {
+            width: 100%;
+            height: auto;
+            filter: grayscale(100%);
+        }
+    
+        .doc-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+    
+        .doc-synopsis {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            text-align: justify;
+        }
+    
+        .doc-link-arrow {
+            font-size: 20px;
+            text-align: right;
+        }
+    
+        @media (max-width: 900px) {
+            .doc-item {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .doc-thumb { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="exposition.html">EXPOSITION</a></li>
+                <li><a href="gallery.html">PHOTO GALLERY</a></li>
+                <li><a href="history.html">HISTORY</a></li>
+                <li><a href="documentaries.html">DOCUMENTARIES</a></li>
+                <li><a href="#contact" class="btn-contact">CONTACT US</a></li>
+            </ul>
+        </nav>
+        <div class="lang-selector">
+            <span>FR</span><span class="active">ENG</span><span>한국어</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title-fit">DOCUMENTARIES</h1>
+
+        <div class="doc-intro">
+            <h2 class="doc-intro-title">ABOUT THE PROJECT</h2>
+            <p>Since 2013, students from the Master 2 Cultures et Métiers du Web at Université Gustave Eiffel (France) and the Film & Visual Media Technology Department at Dong-Eui University in Busan (South Korea) have collaborated each year on interactive documentaries, tracing the traces of Korean history — from the streets of Busan and Seoul to the memory of May 1980 in Gwangju. A partnership that led to a double-degree programme between the two universities in 2019.</p>
+        </div>
+
+        <div class="doc-list">
+
+            <a class="doc-item" href="https://gwangju3.mastercmw.com/" target="_blank" rel="noopener">
+                <span class="doc-year">2024</span>
+                <img class="doc-thumb" src="https://api.microlink.io/?url=https://gwangju3.mastercmw.com/&screenshot=true&meta=false&embed=screenshot.url" alt="Le Soulèvement de Gwangju" onerror="this.style.display='none'">
+                <span class="doc-title">Le Soulèvement de Gwangju</span>
+                <span class="doc-synopsis">In a world where truth is subject to individual sensitivities and images carry the power of conviction, how can archival footage build a narrative of the birth of South Korean democracy?</span>
+                <span class="doc-link-arrow">↗</span>
+            </a>
+
+            <a class="doc-item" href="https://traces2023.mastercmw.com/gwangju" target="_blank" rel="noopener">
+                <span class="doc-year">2023</span>
+                <img class="doc-thumb" src="https://api.microlink.io/?url=https://traces2023.mastercmw.com/gwangju&screenshot=true&meta=false&embed=screenshot.url" alt="Gwangju 5·18 Unknown" onerror="this.style.display='none'">
+                <span class="doc-title">Gwangju 5·18 Unknown</span>
+                <span class="doc-synopsis">The history of the Gwangju Uprising is written through the memories of its survivors. Each fought in their own way. This documentary follows artists — singers, painters, writers — who carry their shared trauma through their work.</span>
+                <span class="doc-link-arrow">↗</span>
+            </a>
+
+            <a class="doc-item" href="https://traces2021.mastercmw.com/GWANGJU" target="_blank" rel="noopener">
+                <span class="doc-year">2021</span>
+                <img class="doc-thumb" src="https://api.microlink.io/?url=https://traces2021.mastercmw.com/GWANGJU&screenshot=true&meta=false&embed=screenshot.url" alt="Histoire d'un Film 16mm" onerror="this.style.display='none'">
+                <span class="doc-title">Histoire d'un Film 16mm</span>
+                <span class="doc-synopsis">Forty years after the events in Gwangju, a super-16mm film enriches the visual archive of the May 18 insurrection. What remains of this film, its author, its journey, its intentions, its emotions?</span>
+                <span class="doc-link-arrow">↗</span>
+            </a>
+
+            <a class="doc-item" href="https://traces2020.mastercmw.com/GWANGJU" target="_blank" rel="noopener">
+                <span class="doc-year">2020</span>
+                <img class="doc-thumb" src="https://api.microlink.io/?url=https://traces2020.mastercmw.com/GWANGJU&screenshot=true&meta=false&embed=screenshot.url" alt="Les Commémorations du Soulèvement" onerror="this.style.display='none'">
+                <span class="doc-title">Les Commémorations du Soulèvement</span>
+                <span class="doc-synopsis">In 1980, the students and citizens of Gwangju rose up for democracy and freedom. Brutally suppressed, the uprising left many dead and wounded. How has it been commemorated in the decades since? What place does it hold in Korean memory and society?</span>
+                <span class="doc-link-arrow">↗</span>
+            </a>
+
+            <a class="doc-item" href="https://gwangju2.webdocs2019.com/" target="_blank" rel="noopener">
+                <span class="doc-year">2019</span>
+                <img class="doc-thumb" src="https://api.microlink.io/?url=https://gwangju2.webdocs2019.com/&screenshot=true&meta=false&embed=screenshot.url" alt="C'était un jour de mai" onerror="this.style.display='none'">
+                <span class="doc-title">C'était un jour de mai</span>
+                <span class="doc-synopsis">After watching A Taxi Driver in a Parisian cinema, a group of friends decides to investigate the events surrounding the Gwangju Uprising of May 18, 1980. Their research leads them to the city itself, where a Chonnam University student guides them through the sites of memory.</span>
+                <span class="doc-link-arrow">↗</span>
+            </a>
+
+            <a class="doc-item" href="https://heritages.mastercmw.com/GWA" target="_blank" rel="noopener">
+                <span class="doc-year">2018</span>
+                <img class="doc-thumb" src="https://api.microlink.io/?url=https://heritages.mastercmw.com/GWA&screenshot=true&meta=false&embed=screenshot.url" alt="Souvenir de Gwangju" onerror="this.style.display='none'">
+                <span class="doc-title">Souvenir de Gwangju</span>
+                <span class="doc-synopsis">In 1980, the closure of Chonnam University in Gwangju provoked a student uprising massively repressed in bloodshed. Today regarded as the emblem of South Korea's democratic aspirations, this documentary traces the genealogy of the photographs that shaped our knowledge of the event.</span>
+                <span class="doc-link-arrow">↗</span>
+            </a>
+
+        </div>
+    </main>
+
+    <footer id="contact" class="standard-footer">
+        <div class="contact-flex">
+            <div class="footer-info"><h3>CONTACT US</h3><p>For questions, partnerships, or information about the project and the archives.</p></div>
+            <form class="contact-form">
+                <input type="text" placeholder="NAME">
+                <input type="email" placeholder="EMAIL">
+                <textarea placeholder="MESSAGE"></textarea>
+                <button type="submit" class="btn-send">SEND</button>
+            </form>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+    <title>Gwangju 5.18 - Home</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .image-wrapper {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .image-wrapper img {
+            display: block;
+            width: 100%;
+            transition: filter 0.3s ease;
+        }
+
+        .image-wrapper:hover img {
+            filter: brightness(0.6);
+        }
+
+        .image-hover-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .image-wrapper:hover .image-hover-label {
+            opacity: 1;
+        }
+
+        .image-hover-label span {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.6);
+            padding: 8px 16px;
+        }
+
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #000;
+            text-decoration: none;
+            border-bottom: 2px solid #000;
+            padding-bottom: 3px;
+            transition: gap 0.2s ease, opacity 0.2s ease;
+        }
+
+        .read-more::after {
+            content: '→';
+            font-size: 13px;
+            font-weight: 300;
+            transition: transform 0.2s ease;
+        }
+
+        .read-more:hover {
+            opacity: 0.5;
+        }
+
+        .read-more:hover::after {
+            transform: translateX(4px);
+        }
+        .text-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .text-container .description-box {
+            transition: opacity 0.2s ease;
+        }
+
+        .text-container:hover .description-box {
+            opacity: 0.5;
+        }
+    </style>
+
+
+    <style id="font-override">
+        body, * { font-family: 'DM Sans', sans-serif !important; }
+        .main-title, .big-date, h1, h2 {
+            font-family: 'Montserrat', sans-serif !important;
+            font-weight: 900 !important;
+        }
+        .footer-info h3 {
+            font-family: 'Montserrat', sans-serif !important;
+            font-weight: 700 !important;
+            font-size: 2.5rem !important;
+            letter-spacing: -2px !important;
+            line-height: 1 !important;
+            color: #fff !important;
+            margin-bottom: 16px !important;
+        }
+        .footer-info p {
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: 300 !important;
+            color: #fff !important;
+            line-height: 1.7 !important;
+            letter-spacing: 0 !important;
+        }
+
+        .hero { text-align: left !important; padding: 60px 0 20px 0 !important; }
+        .main-title {
+            display: block !important;
+            white-space: nowrap !important; line-height: 1 !important;
+            letter-spacing: -3px !important;
+            font-size: 9.6vw !important;
+        }
+        .intro-text {
+            display: block !important; width: 100% !important;
+            text-align: justify !important; text-justify: inter-word !important;
+            font-size: 14px !important; line-height: 1.7 !important;
+            margin-bottom: 0 !important;
+        }
+        div.scroll-arrow {
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            font-size: 40px !important;
+            margin: 16px 0 30px !important;
+            /* override reveal-block flex & margins */
+            flex-direction: unset !important;
+            gap: unset !important;
+            align-items: unset !important;
+            margin-top: 16px !important;
+            margin-bottom: 30px !important;
+        }
+
+        .content-block {
+            display: flex !important;
+            flex-direction: row !important;   
+            align-items: stretch !important;
+            margin-bottom: 80px !important;
+            gap: 0 !important;
+            margin-top: 0 !important;
+        }
+        .content-block:nth-of-type(even) {
+            flex-direction: row-reverse !important;  
+        }
+
+        .image-wrapper {
+            flex: 1.3 !important;
+            position: relative !important;
+            overflow: hidden !important;
+            aspect-ratio: unset !important;   
+            min-height: 320px !important;
+        }
+        .image-wrapper img {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        .text-container {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: row !important;    
+            align-items: center !important;
+            z-index: 10 !important;
+            padding: 30px 0 !important;
+        }
+        .content-block:nth-of-type(odd) .text-container {
+            margin-left: -60px !important;
+            margin-right: 0 !important;
+        }
+        .content-block:nth-of-type(even) .text-container {
+            margin-right: -60px !important;
+            margin-left: 0 !important;
+            flex-direction: row-reverse !important;
+        }
+
+        .big-date {
+            font-size: clamp(3.5rem, 7vw, 7rem) !important;
+            line-height: 0.85 !important;
+            letter-spacing: -3px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+
+        .description-box {
+            flex: 1 !important;
+            max-width: none !important;
+            padding: 0 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+        .description-box p {
+            font-size: 13px !important;
+            line-height: 1.7 !important;
+            margin: 0 0 12px !important;
+            text-align: justify !important;
+            text-justify: inter-word !important;
+        }
+        .content-block:nth-of-type(odd) .read-more  { align-self: flex-start !important; }
+        .content-block:nth-of-type(even) .read-more { align-self: flex-end   !important; }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="exposition.html">EXPOSITION</a></li>
+                <li><a href="gallery.html">PHOTO GALLERY</a></li>
+                <li><a href="history.html">HISTORY</a></li>
+                <li><a href="documentaries.html">DOCUMENTARIES</a></li>
+                <li><a href="#contact" class="btn-contact">CONTACT US</a></li>
+            </ul>
+        </nav>
+        <div class="lang-selector"><span>FR</span><span class="active">ENG</span><span>한국어</span></div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1 class="main-title">GWANGJU 5.18</h1>
+            <p class="intro-text">A date attached to the name of the former capital of South Jeolla Province; a searing term for all South Korean democrats. The events documented in the photographs gathered here concern only a few days, from 18 to 27 May 1980. Yet their importance is inversely proportional to their duration, for the Gwangju Uprising occupies a central place in the process of democratization in South Korea.</p>
+            <div class="scroll-arrow">↓</div>
+        </section>
+
+        <div class="content-wrapper">
+            <!-- Bloco 1: 3-16 MAY -->
+            <section class="content-block">
+                <div class="image-wrapper" onclick="location.href='gallery.html#photo-1-4'">
+                    <img src="1-4.jpg" alt="3-16 May">
+                    <div class="image-hover-label"><span>View in Gallery ↗</span></div>
+                </div>
+                <div class="text-container" onclick="location.href='history.html#protests'">
+                    <h2 class="big-date">3-16<br>MAY</h2>
+                    <div class="description-box">
+                        <p>The assassination of General Park on October 26, 1979 sparked widespread protests among the
+                            Korean people, who had endured many years of dictatorship. Their main demands included
+                            autonomy for universities, the lifting of martial law, and guarantees of fundamental
+                            workers' rights...</p><a href="history.html#protests" class="read-more">READ MORE</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bloco 2: 18-19 MAY -->
+            <section class="content-block">
+                <div class="image-wrapper" onclick="location.href='gallery.html#photo-2-5'">
+                    <img src="2-5.jpg" alt="18-19 May">
+                    <div class="image-hover-label"><span>View in Gallery ↗</span></div>
+                </div>
+                <div class="text-container" onclick="location.href='history.html#repression'">
+                    <h2 class="big-date">18-19<br>MAY</h2>
+                    <div class="description-box">
+                        <p>During the night of May 17, the military junta announced "the extension of the state of
+                            emergency to the entire country" and the closure of all universities, with 24 opposition
+                            politicians and numerous figures involved in the fight for democracy being arrested.
+                            More than 25.000...</p><a href="history.html#repression" class="read-more">READ MORE</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bloco 3: 20-21 MAY -->
+            <section class="content-block">
+                <div class="image-wrapper" onclick="location.href='gallery.html#photo-3-8'">
+                    <img src="3-8.jpg" alt="20-21 May">
+                    <div class="image-hover-label"><span>View in Gallery ↗</span></div>
+                </div>
+                <div class="text-container" onclick="location.href='history.html#uprising'">
+                    <h2 class="big-date">20-21<br>MAY</h2>
+                    <div class="description-box">
+                        <p>On May 20, as the movement's support base expanded considerably, winning over large sections
+                            of the population of Gwangju, the demonstration turned into a widespread uprising.
+                            At around 7 p.m., a procession consisting of a truck, 11 buses, and approximately 200 taxis...</p><a href="history.html#uprising" class="read-more">READ MORE</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bloco 4: 22-26 MAY -->
+            <section class="content-block">
+                <div class="image-wrapper" onclick="location.href='gallery.html#photo-4-16'">
+                    <img src="4-16.jpg" alt="22-26 May">
+                    <div class="image-hover-label"><span>View in Gallery ↗</span></div>
+                </div>
+                <div class="text-container" onclick="location.href='history.html#resistance'">
+                    <h2 class="big-date">22-26<br>MAY</h2>
+                    <div class="description-box">
+                        <p>After the withdrawal of troops, the main roads leading to other regions were blocked and
+                            communications were suspended, cutting Gwangju off from the rest of the world. However, the city
+                            did not collapse and managed to maintain order and organize itself.
+                            Every day, tens of thousands of...</p><a href="history.html#resistance" class="read-more">READ MORE</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bloco 5: 27 MAY -->
+            <section class="content-block">
+                <div class="image-wrapper" onclick="location.href='gallery.html#photo-5-1'">
+                    <img src="5-1.jpg" alt="27 May">
+                    <div class="image-hover-label"><span>View in Gallery ↗</span></div>
+                </div>
+                <div class="text-container" onclick="location.href='history.html#suppression'">
+                    <h2 class="big-date">27<br>MAY</h2>
+                    <div class="description-box">
+                        <p>The military regime prepares its final suppression operation by deploying the 11th Airborne
+                            Brigade and the 20th Division, after obtaining approval from the United States.
+                            On May 26, the military calls on the citizen militias to surrender. However, many residents
+                            remain determined to defend the Provincial Office, pledging to resist until the very end.
+                            Facing a heavily armed army...</p><a href="history.html#suppression" class="read-more">READ MORE</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bloco 6: 1980-NOW -->
+            <section class="content-block">
+                <div class="image-wrapper" onclick="location.href='gallery.html#photo-6-5'">
+                    <img src="6-5.jpg" alt="1980-Now">
+                    <div class="image-hover-label"><span>View in Gallery ↗</span></div>
+                </div>
+                <div class="text-container" onclick="location.href='history.html#mourning'">
+                    <h2 class="big-date">1980-<br>NOW</h2>
+                    <div class="description-box">
+                        <p>In Gwangju, the memory of the events of May 1980 remains an open wound, kept alive through
+                            ongoing efforts to commemorate the victims of a brutal repression. This memory has become a
+                            fundamental part of the city's identity. The remembrance of the...</p><a href="history.html#mourning" class="read-more">READ MORE</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer id="contact" class="standard-footer">
+        <div class="contact-flex">
+            <div class="footer-info"><h3>CONTACT US</h3><p>For questions, partnerships, or information about the project and the archives.</p></div>
+            <form class="contact-form">
+                <input type="text" placeholder="NAME">
+                <input type="email" placeholder="EMAIL">
+                <textarea placeholder="MESSAGE"></textarea>
+                <button type="submit" class="btn-send">SEND</button>
+            </form>
+        </div>
+    </footer>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            }
+          });
+        }, { threshold: 0.2 });
+        
+        document.querySelectorAll(".reveal-block").forEach(block => {
+          observer.observe(block);
+        });
+    </script>
+
+
+</body>
+</html>

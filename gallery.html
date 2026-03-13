@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Gallery - Gwangju 5.18</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+    <style>
+        .gallery-section {
+            margin-bottom: 64px;
+        }
+
+        .section-desc {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #444;
+            text-align: justify;
+            margin: 8px 0 32px 0;
+        }
+        .section-label {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #999;
+            border-top: 2px solid #000;
+            padding-top: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Grid ── */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .grid-item {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 4/3;
+            background: #111;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            will-change: transform;
+            filter: grayscale(20%);
+        }
+
+        .grid-item:hover img {
+            transform: scale(1.04);
+            filter: grayscale(0%);
+        }
+
+        /* Hover overlay */
+        .hover-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0);
+            display: flex;
+            align-items: flex-end;
+            padding: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .grid-item:hover .hover-overlay {
+            background: rgba(0,0,0,0.55);
+        }
+
+        .hover-caption {
+            font-size: 11px;
+            color: #fff;
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .grid-item:hover .hover-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Modal ── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.93);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open { display: flex; }
+
+        .modal-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .modal-img-wrap {
+            position: relative;
+            max-height: 75vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #expandedImg {
+            max-height: 75vh;
+            max-width: calc(100vw - 160px);
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-prev, .modal-next {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-size: 22px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .modal-prev { left: 16px; }
+        .modal-next { right: 16px; }
+        .modal-prev:hover, .modal-next:hover { background: rgba(255,255,255,0.25); }
+
+        .modal-meta {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            width: 100%;
+            max-width: calc(100vw - 160px);
+        }
+
+        .modal-caption {
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .modal-counter {
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #555;
+            white-space: nowrap;
+            padding-top: 2px;
+        }
+
+        /* Close button */
+        .modal-close {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            font-size: 28px;
+            color: #fff;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+        .modal-close:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <nav><ul class="nav-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="exposition.html">EXPOSITION</a></li>
+            <li><a href="gallery.html">PHOTO GALLERY</a></li>
+            <li><a href="history.html">HISTORY</a></li>
+            <li><a href="documentaries.html">DOCUMENTARIES</a></li>
+            <li><a href="#contact" class="btn-contact">CONTACT US</a></li>
+        </ul></nav>
+        <div class="lang-selector"><span>FR</span><span class="active">ENG</span><span>한국어</span></div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">PHOTO GALLERY</h1>
+        <div id="gallery-root"></div>
+    </main>
+
+    <div id="photoModal" class="modal">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-inner">
+            <div class="modal-img-wrap">
+                <div class="modal-prev" onclick="navigate(-1)">&#8592;</div>
+                <img id="expandedImg" src="" alt="">
+                <div class="modal-next" onclick="navigate(1)">&#8594;</div>
+            </div>
+            <div class="modal-meta">
+                <div class="modal-caption" id="modal-description"></div>
+                <div class="modal-counter" id="modal-counter"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="standard-footer">
+        <div class="contact-flex">
+            <div class="footer-info"><h3>CONTACT US</h3><p>For questions, partnerships, or information about the project and the archives.</p></div>
+            <form class="contact-form">
+                <input type="text" placeholder="NAME">
+                <input type="email" placeholder="EMAIL">
+                <textarea placeholder="MESSAGE"></textarea>
+                <button type="submit" class="btn-send">SEND</button>
+            </form>
+        </div>
+    </footer>
+
+    <script>
+    const PHOTOS = [
+      {img:"1-1.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, On the campus of Chonnam National University: students organize a symbolic funeral for anti-national and anti-democratic forces. Dressed in mourning clothes, they carry coffins and reenact traditional funeral rites, May 3, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"1-2.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, A student confronts a guard at the main gate of Chonnam National University, shouting: \"There is no martial law, so go ahead!\" as riot police stand nearby, May 5, 1980, May 18 Archives."},
+      {img:"1-3.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, Chonnam National University campus, May 1980, May 18 Archives."},
+      {img:"1-4.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, Students face riot police at the main entrance of Chonnam National University, May 8, 1980, Black-and-white negative, 24 × 36 mm, Gwangju, May 18 Archives."},
+      {img:"1-5.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, The main entrance of Chonnam National University, with Park Gwan-hyun, president of the student body, May 8, 1980, May 18 Archives."},
+      {img:"1-6.jpg",section:"3–16 MAY",desc:"Kwangju Ilbo, May 14, 1980, 4:42 p.m., square in front of the Jeollanam-do Provincial Government Office: crowd gathered for the Grand Rally for Democracy, May 14, 1980, Black-and-white negative, 24 × 36 mm, Kwangju Ilbo."},
+      {img:"1-7.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, Following the large pro-democracy rally, demonstrators march along Geumnam-ro before continuing north, May 14, 1980, May 18 Archives."},
+      {img:"1-8.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, After the Grand Rally for Democracy, the procession marches along Geumnam-ro. A pungmul troupe leads the march, playing a key role in energizing the atmosphere of the demonstration. The placards read: \"Immediate lifting of martial law,\" \"Abolish the state of emergency!!,\" and \"Vampire tycoons must apologize to the nation!!\", May 15, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"1-9.jpg",section:"3–16 MAY",desc:"Choi Byung-woo, Intersection in front of Jeonnam Technical High School (now in front of Dong-gu Office), May 15, 1980, May 18 Archives."},
+      {img:"1-10.jpg",section:"3–16 MAY",desc:"Choi Byung-woo, Intersection in front of Jeonnam Technical High School (now in front of Dong-gu Office), May 15, 1980, May 18 Archives."},
+      {img:"1-11.jpg",section:"3–16 MAY",desc:"Choi Byung-woo, Intersection in front of Jeonnam Technical High School (now in front of Dong-gu Office), May 15, 1980, May 18 Archives."},
+      {img:"1-12.jpg",section:"3–16 MAY",desc:"Na Kyung-taek, On the night of Friday, May 16 — the anniversary of Park Chung-hee's 1961 coup d'état — students and citizens of Gwangju gather in the square in front of the Jeollanam-do Provincial Government Office, May 16, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"2-1.jpg",section:"18–19 MAY",desc:"Gwangju Ilbo, First clashes between students and martial law troops (7th and 11th Airborne Brigades) on Geumnam-ro, May 18, 1980, Black-and-white negative, 24 × 36 mm, Gwangju Ilbo."},
+      {img:"2-2.jpg",section:"18–19 MAY",desc:"The Korea Times, In front of the Gwangju Chamber of Commerce and Industry on Geumnam-ro, May 19, 1980, May 18 Archives."},
+      {img:"2-3.jpg",section:"18–19 MAY",desc:"Na Kyung-taek, Airborne troops charge along Geumnam-ro, May 19, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"2-4.jpg",section:"18–19 MAY",desc:"The Korea Times, Wounded citizens at the site of the demonstration on Geumnam-ro, May 19, 1980, May 18 Archives."},
+      {img:"2-5.jpg",section:"18–19 MAY",desc:"Shin Bok-jin, Martial law troops with fixed bayonets pursuing citizens on Chungjang-ro, May 19, 1980, Black-and-white negative, 24 × 36 mm, Gwangju, May 18 Archives."},
+      {img:"2-6.jpg",section:"18–19 MAY",desc:"Shin Bok-jin, Students attacked by martial law troops in front of the Mudeng High School preparatory academy, May 19, 1980, May 18 Archives."},
+      {img:"2-7.jpg",section:"18–19 MAY",desc:"Shin Bok-jin, Students looking down from the window of the Mudeng High School preparatory academy as martial law troops suppress the demonstration below, May 19, 1980, May 18 Archives."},
+      {img:"2-8.jpg",section:"18–19 MAY",desc:"Shin Bok-jin, A medic strikes a citizen with a baton, May 19, 1980, May 18 Archives."},
+      {img:"2-9.jpg",section:"18–19 MAY",desc:"Shin Bok-jin, Martial law troops beating citizens with batons on Geumnam-ro, May 19, 1980, Black-and-white negative, 24 × 36 mm, Family of the late Shin Bok-jin."},
+      {img:"2-10.jpg",section:"18–19 MAY",desc:"Shin Bok-jin, Martial law soldiers with captured citizens attempting to flee along Geumnam-ro, May 19, 1980, May 18 Archives."},
+      {img:"2-11.jpg",section:"18–19 MAY",desc:"Unknown photographer, People being loaded onto trucks by martial law troops regardless of whether they participated in the demonstration, Geumnam-ro, May 19, 1980, Color negative, 24 × 36 mm, Photographic Collection of the May 18 Truth Investigation Commission."},
+      {img:"2-12.jpg",section:"18–19 MAY",desc:"Unknown photographer, Geumnam-ro, May 19, 1980, Color negative, 24 × 36 mm, Photographic Collection of the May 18 Truth Investigation Commission, Memory and Truth of May 18, pp. 199, 200, 202."},
+      {img:"2-13.jpg",section:"18–19 MAY",desc:"Unknown photographer, Geumnam-ro, May 19, 1980, Color negative, 24 × 36 mm, Photographic Collection of the May 18 Truth Investigation Commission, Memory and Truth of May 18, pp. 199, 200, 202."},
+      {img:"2-14.jpg",section:"18–19 MAY",desc:"Unknown photographer, Geumnam-ro, May 19, 1980, Color negative, 24 × 36 mm, Photographic Collection of the May 18 Truth Investigation Commission, Memory and Truth of May 18, pp. 199, 200, 202."},
+      {img:"2-15.jpg",section:"18–19 MAY",desc:"Lee Chang-sung, Martial law soldiers assault citizens on Geumnam-ro, May 20, 1980, May 18 Archives."},
+      {img:"2-16.jpg",section:"18–19 MAY",desc:"Lee Chang-sung, Martial law soldiers assault citizens on Geumnam-ro, May 20, 1980, May 18 Archives."},
+      {img:"2-17.jpg",section:"18–19 MAY",desc:"Lee Chang-sung, Martial law soldiers assault citizens on Geumnam-ro, May 20, 1980, May 18 Archives."},
+      {img:"2-18.jpg",section:"18–19 MAY",desc:"Lee Chang-sung, Martial law soldiers assault citizens on Geumnam-ro, May 20, 1980, May 18 Archives."},
+      {img:"3-1.jpg",section:"20–21 MAY",desc:"The Korea Times, A bus driven into martial law troops on Geumnam-ro near the Gwangju Tourist Hotel, May 20, 1980, May 18 Archives."},
+      {img:"3-2.jpg",section:"20–21 MAY",desc:"Gwangju Ilbo, Vehicle demonstration on Geumnam-ro, May 20, 1980, Black-and-white negative, 24 × 36 mm, Gwangju Ilbo."},
+      {img:"3-3.jpg",section:"20–21 MAY",desc:"Lee Chang-sung, The MBC Gwangju broadcasting station the day after the fire, May 20, 1980, May 18 Archives."},
+      {img:"3-4.jpg",section:"20–21 MAY",desc:"Gwangju Ilbo, Fire at the KBS Gwangju broadcasting station, May 21, 1980, May 18 Archives."},
+      {img:"3-5.jpg",section:"20–21 MAY",desc:"Lee Chang-sung, Morning of May 21: demonstrators carry two bodies on a cart along Geumnam-ro, May 21, 1980, Color negative, 24 × 36 mm, May 18 Archives."},
+      {img:"3-6.jpg",section:"20–21 MAY",desc:"The Korea Times, Demonstrators transport two bodies killed the previous night during the Gwangju Station protest on a handcart, May 21, 1980, May 18 Archives."},
+      {img:"3-7.jpg",section:"20–21 MAY",desc:"Na Kyung-taek, Shortly before the mass shooting by martial law troops, soldiers face demonstrators on Geumnam-ro, May 21, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"3-8.jpg",section:"20–21 MAY",desc:"Lee Chang-sung, Martial law troops confronting demonstrators on Geumnam-ro, May 21, 1980, Black-and-white negative, 24 × 36 mm, Gwangju, May 18 Archives."},
+      {img:"3-9.jpg",section:"20–21 MAY",desc:"Cho Sang-gi, Morning of May 21: demonstrators move through the city aboard a military truck seized from Asia Motors, May 21, 1980, Color negative, 24 × 36 mm, May 18 Archives."},
+      {img:"3-10.jpg",section:"20–21 MAY",desc:"Na Kyung-taek, Street broadcast by demonstrators facing martial law troops on Geumnam-ro, May 21, 1980, May 18 Archives."},
+      {img:"3-11.jpg",section:"20–21 MAY",desc:"Pastor Huntley & Kim Young-bok, Victims transported to Gwangju Christian Hospital after the mass shooting by martial law troops, May 21, 1980, Color negative, 24 × 36 mm, May 18 Archives."},
+      {img:"3-12.jpg",section:"20–21 MAY",desc:"Choi Byung-woo, A public phone booth on Geumnam-ro after fierce combat, May 21, 1980, May 18 Archives."},
+      {img:"4-1.jpg",section:"22–26 MAY",desc:"The Korea Times, The day after the withdrawal of martial law troops, citizens gather in the square in front of the Jeollanam-do Provincial Government Office. Inside the Sangmuwan Gymnasium, the bodies of those killed are being held, May 22, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"4-2.jpg",section:"22–26 MAY",desc:"The Korea Times, Demonstrators board a bus to travel across the southwestern Jeollanam-do Province to denounce the atrocities committed in Gwangju, May 22, 1980, Color negative, 24 × 36 mm, The Korea Times."},
+      {img:"4-3.jpg",section:"22–26 MAY",desc:"Lee Chang-sung, A masked citizen holding a firearm on Geumnam-ro, May 22, 1980, May 18 Archives."},
+      {img:"4-4.jpg",section:"22–26 MAY",desc:"Lee Chang-sung, Cha Bok-hwan, known as Kim Gun, near the Jinheung store and Buyeong Pharmacy on Geumnam-ro, May 22, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"4-5.jpg",section:"22–26 MAY",desc:"Lee Chang-sung, Members of the citizen militia ride in a jeep and a truck in the alley behind Speer Girls' High School, May 22, 1980, Color negative, 24 × 36 mm, May 18 Archives."},
+      {img:"4-6.jpg",section:"22–26 MAY",desc:"Lee Chang-sung, Citizens organizing firearms in front of the Provincial Government Office guardhouse, May 23, 1980, May 18 Archives."},
+      {img:"4-7.jpg",section:"22–26 MAY",desc:"Norman Thorpe, Firearms being organized by staff from the Jeonnam Provincial Government Office and citizens gathered in the square, May 23, 1980, May 18 Archives."},
+      {img:"4-8.jpg",section:"22–26 MAY",desc:"Kyunghyang Shinmun, Citizens collecting donations for the wounded at the fountain in the square in front of the Jeollanam-do Provincial Government Office, May 22, 1980, Black-and-white negative, 24 × 36 mm, Kyunghyang Shinmun."},
+      {img:"4-9.jpg",section:"22–26 MAY",desc:"Lee Chang-sung, Women distributing food to citizens along Geumnam-ro, May 22, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"4-10.jpg",section:"22–26 MAY",desc:"Pastor Huntley, A man participating in a blood donation drive at Gwangju Christian Hospital, May 22, 1980, Color negative, 24 × 36 mm, May 18 Archives."},
+      {img:"4-11.jpg",section:"22–26 MAY",desc:"Kyunghyang Shinmun, Residents of Gwangju carry the coffins of victims near the fountain in front of the Jeollanam-do Provincial Government Office, May 22, 1980, Black-and-white negative, 24 × 36 mm, Kyunghyang Shinmun."},
+      {img:"4-12.jpg",section:"22–26 MAY",desc:"The Korea Times, Martial law troops, armored vehicles, and tanks deployed in the streets of Hwajeong-dong, May 24, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"4-13.jpg",section:"22–26 MAY",desc:"The Korea Times, Citizen militia and barricade standoff, May 23, 1980, May 18 Archives."},
+      {img:"4-14.jpg",section:"22–26 MAY",desc:"Gwangju Ilbo, Meeting of the mediation committee at the vice governor's office in the Provincial Government building, May 23–24, 1980, Black-and-white negative, 24 × 36 mm, Gwangju Ilbo."},
+      {img:"4-15.jpg",section:"22–26 MAY",desc:"The Korea Times, Crisis room in the administrative office of the main Provincial Government building — student settlement committee, May 24, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"4-16.jpg",section:"22–26 MAY",desc:"The Korea Times, Jürgen Hinzpeter, journalist for the German channel NDR, filming a speech in the square in front of the Provincial Government Office, May 23, 1980, Color negative, 24 × 36 mm, Seoul, The Korea Times."},
+      {img:"4-17.jpg",section:"22–26 MAY",desc:"François Lochon, Citizens gathered for the 4th Citizens' Uprising Rally in the square in front of City Hall, May 26, 1980, May 18 Archives."},
+      {img:"4-18.jpg",section:"22–26 MAY",desc:"Norman Thorpe, Citizens from the Civil Administration Committee confront martial law troops at a barricade in Nongseong-dong after a funeral march, May 26, 1980, Black-and-white negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"4-19.jpg",section:"22–26 MAY",desc:"Robin Moyer, Members of the citizen militia stand guard near a second-floor window of the Provincial Government Office, May 26, 1980, Color negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"5-1.jpg",section:"27 MAY",desc:"Na Kyung-taek, Armored vehicles in the square in front of the Provincial Government Office, May 27, 1980, Black-and-white negative, 24 × 36 mm, Gwangju, May 18 Archives."},
+      {img:"5-2.jpg",section:"27 MAY",desc:"Lee Chang-sung, Martial law troops tie the hands of students arrested in front of the Geumnam-ro Commercial Bank, May 27, 1980, May 18 Archives."},
+      {img:"5-3.jpg",section:"27 MAY",desc:"Lee Chang-sung, Martial law troops tie the hands of students arrested in front of the Geumnam-ro Commercial Bank, May 27, 1980, May 18 Archives."},
+      {img:"5-4.jpg",section:"27 MAY",desc:"Lee Chang-sung, Martial law troops tie the hands of students arrested in front of the Geumnam-ro Commercial Bank, May 27, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"5-5.jpg",section:"27 MAY",desc:"The Korea Times, Students arrested by martial law troops and brought to the Provincial Government Office, May 27, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"5-6.jpg",section:"27 MAY",desc:"François Lochon, Kim Jong-yeon, a student in his final year of high school, in front of the YMCA, May 27, 1980. He is still alive."},
+      {img:"5-7.jpg",section:"27 MAY",desc:"Lee Chang-sung, Victims of the suppression operation gathered under the passage connecting the main building and the meeting hall at the Provincial Government Office, May 27, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"5-8.jpg",section:"27 MAY",desc:"Lee Chang-sung, Inspector examining bodies inside the Sangmuwan Gymnasium, May 27, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"5-9.jpg",section:"27 MAY",desc:"Lee Chang-sung, The scene in front of the Nando Arts Center the day after martial law troops suppressed the Provincial Government Office, May 28, 1980, May 18 Archives."},
+      {img:"5-10.jpg",section:"27 MAY",desc:"Lee Chang-sung, Withdrawal of tanks from the city of Gwangju, May 29, 1980, Color negative, 24 × 36 mm, May 18 Archives."},
+      {img:"6-1.jpg",section:"MOURNING",desc:"Robin Moyer, Relatives of the victims paying tribute before coffins placed under a tent near Chonnam National University Hospital, May 23, 1980, Color negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"6-2.jpg",section:"MOURNING",desc:"François Lochon, Citizens paying tribute before coffins placed inside the Sangmuwan Gymnasium, May 26, 1980, Color negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"6-3.jpg",section:"MOURNING",desc:"François Lochon, Bodies in coffins bearing notes used to identify the victims — clothing worn, place where the body was found — May 26, 1980, Color negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"6-4.jpg",section:"MOURNING",desc:"Robin Moyer, Citizens paying tribute before coffins placed inside the Sangmuwan Gymnasium, May 26, 1980, Color negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"6-5.jpg",section:"MOURNING",desc:"Patrick Chauvel, Moon Gwi-deok (mother) and Park Geum-suk (elder sister) mourn over the coffin of young Park Geum-hee, May 26, 1980, Color negative, 24 × 36 mm, Gwangju, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"6-6.jpg",section:"MOURNING",desc:"François Lochon, Jo Cheon-ho sitting on the coffin of his father in the Sangmuwan Gymnasium, May 26, 1980, Color negative, 24 × 36 mm, Restoration Office of the Former Jeonnam Provincial Government Building."},
+      {img:"6-7.jpg",section:"MOURNING",desc:"Na Kyung-taek, Students placing flowers in memory of their fellow students who were killed, May 27, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"7-1.jpg",section:"PHOTOGRAPHERS",desc:"The Korea Times, Korean journalists gathered in front of the Provincial Government Office, May 27, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"7-2.jpg",section:"PHOTOGRAPHERS",desc:"The Korea Times, Foreign press correspondents in front of the Provincial Government Office, May 27, 1980, May 18 Archives."},
+      {img:"7-3.jpg",section:"PHOTOGRAPHERS",desc:"The Korea Times, Foreign journalists in front of the Provincial Government Office — François Lochon can be recognized sitting — May 24, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"7-4.jpg",section:"PHOTOGRAPHERS",desc:"The Korea Times, Citizens demonstrating on Geumnam-ro, with a press photographer on the left capturing the scene, May 19, 1980, Black-and-white negative, 24 × 36 mm, The Korea Times."},
+      {img:"7-5.jpg",section:"PHOTOGRAPHERS",desc:"Patrick Chauvel, Martial law troops moving the bodies of victims in front of the main Provincial Government building, May 27, 1980, May 18 Archives."},
+      {img:"7-6.jpg",section:"PHOTOGRAPHERS",desc:"Lee Chang-sung, Arrested demonstrators handcuffed behind their backs and dragged toward the Provincial Government Office while journalists film the scene, May 27, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"7-7.jpg",section:"PHOTOGRAPHERS",desc:"Lee Chang-sung, Arrested citizens being taken to the Provincial Government Office, May 27, 1980, Black-and-white negative, 24 × 36 mm, May 18 Archives."},
+      {img:"7-8.jpg",section:"PHOTOGRAPHERS",desc:"Lee Chang-sung, Contact sheet, May 20, 1980, May 18 Archives."},
+      {img:"7-9.jpg",section:"PHOTOGRAPHERS",desc:"Lee Chang-sung, Contact sheet, May 21, 1980, May 18 Archives."},
+      {img:"7-10.jpg",section:"PHOTOGRAPHERS",desc:"Lee Chang-sung, Contact sheet, May 22, 1980, May 18 Archives."},
+      {img:"7-11.jpg",section:"PHOTOGRAPHERS",desc:"Norman Thorpe, Press pass used to move through checkpoints in Gwangju, May 25, 1980, May 18 Archives."}
+    ];
+
+    const sectionOrder = [];
+    const sectionMap = {};
+    PHOTOS.forEach((p, i) => {
+        if (!sectionMap[p.section]) {
+            sectionMap[p.section] = [];
+            sectionOrder.push(p.section);
+        }
+        sectionMap[p.section].push({...p, globalIndex: i});
+    });
+
+    const root = document.getElementById('gallery-root');
+    sectionOrder.forEach(sec => {
+        const wrap = document.createElement('div');
+        wrap.className = 'gallery-section';
+        const idMap = {
+            '3–16 MAY': 'section-3-16',
+            '18–19 MAY': 'section-18-19',
+            '20–21 MAY': 'section-20-21',
+            '22–26 MAY': 'section-22-26',
+            '27 MAY': 'section-27',
+            'MOURNING': 'section-mourning',
+            'PHOTOGRAPHERS': 'section-photographers'
+        };
+        if (idMap[sec]) wrap.id = idMap[sec];
+
+        const descMap = {
+            '3–16 MAY': 'Following the assassination of President Park Chung-hee in October 1979, South Korea entered a period of political uncertainty. Student protests calling for democracy spread across the country, particularly at universities in Gwangju.',
+            '18–19 MAY': 'On May 18, paratroopers were deployed to suppress demonstrations at Chonnam National University. Their violent response — beating students and bystanders indiscriminately — provoked outrage and drew tens of thousands of citizens into the streets.',
+            '20–21 MAY': 'The uprising intensified as citizens armed themselves and seized control of the city. On May 21, soldiers opened fire on the crowd in front of the Provincial Government Office, killing dozens and marking a turning point in the confrontation.',
+            '22–26 MAY': 'After the military withdrew from central Gwangju, citizens organised a self-governing committee to maintain order, distribute food, and negotiate with the authorities. The city held together under the shadow of an imminent crackdown.',
+            '27 MAY': 'In the early hours of May 27, tens of thousands of martial law troops retook the city. The final defenders barricaded inside the Provincial Government Office were killed or arrested. The uprising was suppressed.',
+            'MOURNING': 'In the weeks and months that followed, the victims were mourned in private while the government suppressed all public memory of the events. Families sought the bodies of the disappeared, and survivors faced imprisonment and torture.',
+            'PHOTOGRAPHERS': 'The photographs collected here were taken by Korean journalists, foreign correspondents, and amateur photographers at great personal risk. Many images were confiscated or hidden for years before entering the public record.'
+        };
+
+        const label = document.createElement('div');
+        label.className = 'section-label';
+        label.textContent = sec;
+        wrap.appendChild(label);
+
+        if (descMap[sec]) {
+            const desc = document.createElement('p');
+            desc.className = 'section-desc';
+            desc.textContent = descMap[sec];
+            wrap.appendChild(desc);
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'photo-grid';
+
+        sectionMap[sec].forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'grid-item';
+            item.innerHTML = `
+                <img src="${p.img}" alt="${p.desc.substring(0,60)}" loading="lazy">
+                <div class="hover-overlay">
+                    <span class="hover-caption">${p.desc}</span>
+                </div>`;
+            item.addEventListener('click', () => openModal(p.globalIndex));
+            grid.appendChild(item);
+        });
+
+        wrap.appendChild(grid);
+        root.appendChild(wrap);
+    });
+
+    let currentIndex = 0;
+
+    function openModal(index) {
+        currentIndex = index;
+        updateModal();
+        document.getElementById('photoModal').classList.add('open');
+        document.addEventListener('keydown', handleKey);
+    }
+
+    function closeModal() {
+        document.getElementById('photoModal').classList.remove('open');
+        document.removeEventListener('keydown', handleKey);
+    }
+
+    function navigate(dir) {
+        currentIndex = (currentIndex + dir + PHOTOS.length) % PHOTOS.length;
+        updateModal();
+    }
+
+    function updateModal() {
+        const p = PHOTOS[currentIndex];
+        document.getElementById('expandedImg').src = p.img;
+        document.getElementById('modal-description').textContent = p.desc;
+        document.getElementById('modal-counter').textContent =
+            `${currentIndex + 1} / ${PHOTOS.length}`;
+    }
+
+    function handleKey(e) {
+        if (e.key === 'ArrowRight') navigate(1);
+        if (e.key === 'ArrowLeft') navigate(-1);
+        if (e.key === 'Escape') closeModal();
+    }
+
+    document.getElementById('photoModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    window.addEventListener('load', () => {
+        if (location.hash && location.hash.startsWith('#photo-')) {
+            const photoName = location.hash.replace('#photo-', '') + '.jpg';
+            const idx = PHOTOS.findIndex(p => p.img === photoName);
+            if (idx !== -1) openModal(idx);
+        }
+    });
+    </script>
+</body>
+</html>
