@@ -173,8 +173,9 @@ h1, h2, .page-title, .page-title-fit, .big-date, .side-number {
   line-height: 0.8; 
   color: #000;
   flex-shrink: 0;
-  
-  margin-top: -8px; 
+  min-width: 1.1ch;
+  text-align: right;
+  margin-top: 0;
 }
 
 .section-subtitle {
@@ -199,12 +200,14 @@ h1, h2, .page-title, .page-title-fit, .big-date, .side-number {
   height: 100%;
 }
 
-.big-date { 
-  font-size: 5.5rem; 
-  line-height: 0.8; 
-  font-weight: 900; 
+.big-date {
+  font-size: 5.5rem;
+  line-height: 0.8;
+  font-weight: 900;
   letter-spacing: -5px;
-  white-space: nowrap; 
+  white-space: normal;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 html {
@@ -1283,6 +1286,12 @@ top: 0;
   text-align: left !important;
   margin-left: 0 !important;
   max-width: none !important;
+}
+
+/* ── Exposition page: align title left edge with subtitle (compensate letter-spacing) ── */
+.exposition-page .page-title,
+body.exposition .page-title {
+  margin-left: -5px;
 }
 
 /* ── Index hero subtitle — equidistant between title and intro ── */
