@@ -289,10 +289,16 @@ section {
   display: flex;
   flex: 1;
   min-width: 0;
-  overflow-x: hidden;
+  overflow-x: scroll;
   scroll-behavior: smooth;
   gap: 15px;
   padding: 10px 0;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.expo-slider-track::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .expo-thumb {
