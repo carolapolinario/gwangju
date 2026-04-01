@@ -409,7 +409,7 @@
         item.setAttribute("role", "button");
         item.setAttribute("aria-label", "View photo: " + plain.substring(0, 80));
         item.innerHTML =
-          '<img src="' + p.img + '" alt="' + plain.substring(0,80).replace(/"/g,"&quot;") + '" loading="lazy">' +
+          '<img src="thumbs/' + p.img + '" alt="' + plain.substring(0,80).replace(/"/g,"&quot;") + '" loading="lazy" decoding="async">' +
           '<div class="hover-overlay"><span class="hover-caption">' + formatted + '</span></div>';
 
         item.addEventListener("click", function() { openModal(p.globalIndex); });

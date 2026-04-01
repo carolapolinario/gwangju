@@ -1,8 +1,4 @@
-/**
- * i18n.js — Gwangju 5.18 language switcher (standalone external file)
- * NOTE: Each HTML page also has the translations inlined in a <script> tag in <head>.
- * This file is kept for compatibility but the inline script takes priority.
- */
+
 (function () {
   var STORAGE_KEY = 'gwangju_lang';
   var DEFAULT_LANG = 'en';
