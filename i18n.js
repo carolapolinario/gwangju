@@ -213,7 +213,6 @@
     "photo_7_9": "<strong>Lee Chang-sung</strong>, <em>Confrontation between citizens and law enforcement forces in front of the provincial government headquarters, May 21, 1980, Contact sheet from a black & white film, 24x36 mm, Gwangju</em>, May 18 Archives.",
     "photo_7_10": "<strong>Lee Chang-sung</strong>, <em>May 22, 1980 Citizen-militiamen, May 22, 1980 Contact sheet from a black & white film, 24x36 mm, Gwangju</em>, Archives of May 18.",
     "photo_7_11": "<strong>Norman Thorpe</strong>, <em>A press pass issued by the Crisis Management Committee, May 25, 1980, Color negative, Gwangju</em>, Restoration Office of the Old Jeannam Provincial Hotel.",
-    // --- MISSING PHOTOS (from gallery, not in xlsx) ---
     "photo_1_2": "<strong>Na Kyung-Taek</strong>, <em>A student confronts a guard at the main door of the National University of Chonnam, shouting: “There is no martial law, so do it!”, with the riot police, May 5, 1980</em>, Archives of May 18",
     "photo_1_4": "<strong>Na Kyung-taek</strong>, <em>Students face riot police at the main entrance of Chonnam National University, May 8, 1980, Black-and-white negative, 24 × 36 mm, Gwangju</em>, May 18 Archives",
     "photo_1_10": "<strong>Choi Byung-oh</strong>, <em>Intersection in front of Jeonnam Technical High School (now in front of Dong-gu Office), May 15, 1980</em>, May 18 Archives",
@@ -457,7 +456,6 @@
     "photo_7_9": "<strong>Lee Chang-sung</strong>, <em>Confrontation entre les citoyens et les forces de maintien de l'ordre devant le siège du gouvernement provincial, 21 mai 1980, Planche contact à partir d'un film noir & blanc, 24x36 mm, Gwangju</em>, Archives du 18 mai.",
     "photo_7_10": "<strong>Lee Chang-sung</strong>, <em>22 mai 1980 Miliciens- citoyens, 22 mai 1980 Planche contact à partir d'un film noir & blanc, 24x36 mm, Gwangju, Archives du 18mai.</em>",
     "photo_7_11": "<strong>Norman Thorpe</strong>, <em>Un laissez-passer de presse délivré par Le Comité de gestion de crise, 25 mai 1980, Négatif couleur, Gwangju</em>, Bureau de Restauration de l'Ancien Hôtel Provincial de Jeannam.",
-    // --- MISSING PHOTOS (from gallery, not in xlsx) ---
     "photo_1_2": "<strong>Na Kyung-taek</strong>, <em>Un étudiant affronte un garde à l'entrée principale de l'Université nationale de Chonnam, criant : « Il n'y a pas de loi martiale, alors agissez ! », avec la police anti-émeute, 5 mai 1980</em>, Archives du 18 mai",
     "photo_1_4": "<strong>Na Kyung-taek</strong>, <em>Des étudiants font face à la police anti-émeute à l'entrée principale de l'Université nationale de Chonnam, 8 mai 1980, Négatif noir & blanc, 24×36 mm, Gwangju</em>, Archives du 18 mai",
     "photo_1_10": "<strong>Choi Byung-oh</strong>, <em>Intersection devant le lycée technique de Jeonnam (actuellement devant la mairie de Dong-gu), 15 mai 1980</em>, Archives du 18 mai",
@@ -700,7 +698,6 @@
     "photo_7_9": "<strong>이창성</strong>, <em>1980년 5월 21일 발포 직전 상황 흑백 필름 인화 콘택트 시트, 24x36mm</em>, 5-18민주화운동기록관",
     "photo_7_10": "<strong>이창성</strong>, <em>1980년 5월 22일 시민군 모습, 흑백 필름 인화 콘택트 시트, 24x36 mm</em>, 5-18민주화운동기록관",
     "photo_7_11": "<strong>노먼 소프</strong>, <em>수습대책위원회가 발급한 기자통행증, 1980년 5월 25일, 컬러 네거티브</em>, 옛도청복원추진단",
-    // --- MISSING PHOTOS (from gallery, not in xlsx) ---
     "photo_1_2": "<strong>나경택</strong>, <em>전남대학교 정문에서 경찰과 대치한 학생이 외치는 장면, 1980년 5월 8일, 흑백 네거티브, 24x36mm</em>, 5·18민주화운동기록관",
     "photo_1_4": "<strong>나경택</strong>, <em>전남대학교 정문에서 경찰과 대치하는 학생들, 1980년 5월 8일, 흑백 네거티브, 24×36mm</em>, 5·18민주화운동기록관",
     "photo_1_10": "<strong>최병오</strong>, <em>전남공고 앞 교차로(현 동구청 앞 교차로), 1980년 5월 15일</em>, 5·18민주화운동기록관",
