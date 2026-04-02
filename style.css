@@ -1162,9 +1162,7 @@ body {
 }
 }
 
-/* ============================================================
- ACCESSIBILITY ENHANCEMENTS
- ============================================================ */
+/* ACCESSIBILITY ENHANCEMENTS */
 
 /* ── Focus visible – clear outline for keyboard users ── */
 :focus-visible {
@@ -1220,7 +1218,7 @@ font-size: 16px;
 text-decoration: underline;
 }
 
-/* ── Read more link – visible underline ── */
+/* ── Read more link ── */
 .read-more {
 text-underline-offset: 4px;
 }
@@ -1299,20 +1297,19 @@ top: 0;
 }
 }
 
-/* ── Exposition page intro subtitle alignment ── */
+/* ── Exposition page ── */
 .exposition-intro {
   text-align: left !important;
   margin-left: 0 !important;
   max-width: none !important;
 }
 
-/* ── Exposition page: align title left edge with subtitle (compensate letter-spacing) ── */
 .exposition-page .page-title,
 body.exposition .page-title {
   margin-left: -5px;
 }
 
-/* ── Index hero subtitle — equidistant between title and intro ── */
+/* ── Index hero subtitle  ── */
 .main-subtitle {
   text-align: left;
   margin-top: 16px;
@@ -1343,10 +1340,7 @@ body.exposition .page-title {
   .see-photos-btn { font-size: 9px; padding: 8px 14px; }
   .main-subtitle { margin-top: 12px; margin-bottom: 12px; }
 }
-/* ============================================================
-   GALLERY PAGE — gallery.html specific styles
-   ============================================================ */
-
+/* gallery.html specific styles */
 /* ── Section layout ── */
 .gallery-section {
   margin-bottom: 64px;
