@@ -8,7 +8,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
-    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
+    #scene-touch { position: fixed; inset: 0; z-index: 1; display: none; touch-action: none; }
 
     #ui {
       position: fixed;
@@ -368,6 +369,8 @@
 </head>
 <body>
 
+<div id="scene-touch"></div>
+
 <div id="overlay">
   <h1>Gwangju 5.18</h1>
   <div id="lang-picker">
@@ -384,7 +387,7 @@
 <div id="click-hint">Cliquez sur un panneau</div>
 
 <div id="ui">
-  <div id="controls-hint">W / S · Touches Fléchées · Souris</div>
+  <div id="controls-hint">W ou Z / S · Touches Fléchées · Souris</div>
   <button id="vr-btn" class="hidden">Entrer en VR</button>
 </div>
 
@@ -424,16 +427,8 @@
   </div>
 </div>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
-  }
-}
-</script>
-
 <script type="module">
-import * as THREE from 'three';
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -970,10 +965,12 @@ function openLightbox(idx) {
   }
 
   lightbox.classList.add('open');
+  sceneTouchEl.style.display = 'none';
 }
 function closeLightbox() {
   lightbox.classList.remove('open');
   lbImg.src = '';
+  if (sceneActive) sceneTouchEl.style.display = 'block';
 }
 function showAdj(dir) {
   let next = currentIdx + dir;
@@ -1049,10 +1046,13 @@ document.addEventListener('pointermove', e => {
 });
 
 let touches = {};
-renderer.domElement.addEventListener('touchstart', e => {
+const sceneTouchEl = document.getElementById('scene-touch');
+
+sceneTouchEl.addEventListener('touchstart', e => {
   [...e.changedTouches].forEach(t => { touches[t.identifier] = {x: t.clientX, y: t.clientY, moved: false}; });
-});
-renderer.domElement.addEventListener('touchmove', e => {
+}, { passive: true });
+
+sceneTouchEl.addEventListener('touchmove', e => {
   e.preventDefault();
   [...e.changedTouches].forEach(t => {
     const prev = touches[t.identifier];
@@ -1064,7 +1064,8 @@ renderer.domElement.addEventListener('touchmove', e => {
     touches[t.identifier] = {...prev, x: t.clientX, y: t.clientY};
   });
 }, { passive: false });
-renderer.domElement.addEventListener('touchend', e => {
+
+sceneTouchEl.addEventListener('touchend', e => {
   [...e.changedTouches].forEach(t => {
     const prev = touches[t.identifier];
     if (prev && !prev.moved && sceneActive && !lightbox.classList.contains('open')) {
@@ -1099,7 +1100,7 @@ const lang = {
   fr: {
     sub:      'Avancez · Regardez à droite.',
     enter:    'Entrer',
-    controls: 'W / S · Touches Fléchées · Souris',
+    controls: 'W ou Z / S · Touches Fléchées · Souris',
     vr:       'Entrer en VR',
     vrExit:   'Quitter VR',
     hint:     'Cliquez sur un panneau',
@@ -1111,7 +1112,7 @@ const lang = {
   en: {
     sub:      'Move forward · Look right.',
     enter:    'Enter',
-    controls: 'W / S · Arrow Keys · Mouse',
+    controls: 'W or Z / S · Arrow Keys · Mouse',
     vr:       'Enter VR',
     vrExit:   'Exit VR',
     hint:     'Click a panel to view',
@@ -1171,7 +1172,7 @@ document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(btn => {
 const overlayEl = document.getElementById('overlay');
 function dismissOverlay() {
   overlayEl.style.opacity = '0';
-  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
+  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; sceneTouchEl.style.display = 'block'; }, 600);
 }
 ['click', 'touchend'].forEach(ev => {
   overlayEl.querySelector('.enter-btn').addEventListener(ev, e => {
@@ -1217,8 +1218,8 @@ const clickHint = document.getElementById('click-hint');
 
 renderer.setAnimationLoop(() => {
   if (!renderer.xr.isPresenting) {
-    if (keys['KeyW'] || keys['ArrowUp'])    camZ -= MOVE_SPEED;
-    if (keys['KeyS'] || keys['ArrowDown'])  camZ += MOVE_SPEED;
+    if (keys['KeyW'] || keys['KeyZ'] || keys['ArrowUp'])    camZ -= MOVE_SPEED;
+    if (keys['KeyS'] || keys['ArrowDown'])                  camZ += MOVE_SPEED;
     camZ = Math.max(MIN_Z, Math.min(MAX_Z, camZ));
 
     camera.position.set(camX, camY, camZ);
