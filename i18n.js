@@ -139,6 +139,9 @@
     "s7_p5b": "These images reveal not only the challenges faced by photographers but also the relative freedom with which many were able to operate. They can be seen working at times among the military, and at other times in the midst of the demonstrators — contradicting the widespread assumption that these photographs were always captured clandestinely under the constant threat of military repression.",
     "s7_p6b": "Although these visual records were subject to state censorship until the late 1980s, they were later mobilized for their evidentiary value, helping to establish the reality of the repression. Today, they must also be considered as historical objects in their own right — as part of a photographic history that examines not only the images themselves, but also the conditions of their production, their circulation, and their various uses over time.",
     "expo_intro": "Explore the visual archives of the Gwangju 5.18 Exposition.",
+    "expo_vr_title": "VIRTUAL EXHIBITION",
+    "expo_vr_sub": "Walk through the Gwangju 5.18 exposition in 3D",
+    "expo_vr_enter": "ENTER",
     "expo_photo_caption": "<strong>Eliott Leclerc</strong>, <em>Universit&#233; Gustave Eiffel, France, 2025</em>",
     // --- PHOTO CAPTIONS ---
     "photo_1_1": "<strong>Na Kyung-Taek</strong>, <em>On the campus of the National University of Chonnam: students organize the funeral of the anti-national and anti-democratic forces. Dressed in mourning clothes, they wear coffins and reproduce traditional funeral rites. May 3, 1980, black & white negative, 24 x 36 mm</em>, Archives of May 18",
@@ -381,6 +384,9 @@
     "s7_p5b": "Ces images révèlent non seulement les défis auxquels les photographes ont été confrontés, mais aussi la liberté relative dont beaucoup ont pu bénéficier. On les voit parfois travailler parmi les militaires, et d'autres fois au milieu des manifestants — contredisant l'hypothèse répandue selon laquelle ces photographies ont toujours été prises clandestinement sous la menace constante de la répression militaire.",
     "s7_p6b": "Bien que ces archives visuelles aient été soumises à la censure d'État jusqu'à la fin des années 1980, elles ont ensuite été mobilisées pour leur valeur probatoire, aidant à établir la réalité de la répression. Aujourd'hui, elles doivent également être considérées comme des objets historiques à part entière — dans le cadre d'une histoire photographique qui examine non seulement les images elles-mêmes, mais aussi les conditions de leur production, leur circulation et leurs diverses utilisations au fil du temps.",
     "expo_intro": "Explorez les archives visuelles de l'Exposition Gwangju 5.18.",
+    "expo_vr_title": "EXPOSITION VIRTUELLE",
+    "expo_vr_sub": "Parcourez l'exposition Gwangju 5.18 en 3D",
+    "expo_vr_enter": "ENTRER",
     "expo_photo_caption": "<strong>Eliott Leclerc</strong>, <em>Universit&#233; Gustave Eiffel, France, 2025</em>",
     // --- PHOTO CAPTIONS ---
     "photo_1_1": "<strong>Na Kyung-taek</strong>, <em>Sur le campus de l'université nationale de Chonnam : des étudiants organisent les funérailles des forces anti-nationales et anti- démocratiques. Vêtus de vêtements de deuil, ils portent des cercueils et reproduisent les rites funéraires traditionnels. le 3 mai 1980, Négatif noir & blanc, 24 x 36 mm</em>, Archives du 18 mai",
@@ -624,6 +630,9 @@
     "s7_p5b": "이 이미지들은 사진기자들이 직면한 어려움뿐 아니라 그들이 누린 상대적 자유도 보여준다. 군인들 사이에서 촬영하는 모습도, 시위대 한복판에서 작업하는 모습도 볼 수 있다 — 이 사진들이 항상 군의 위협 속에 몰래 촬영되었다는 통념을 뒤집는다.",
     "s7_p6b": "이 시각 기록들은 1980년대 말까지 국가 검열을 받았지만, 이후 진압의 실체를 입증하는 증거로 활용되었다. 오늘날 이것들은 단순한 기록을 넘어, 이미지 자체뿐 아니라 그 제작 조건, 유통 과정, 시간에 따른 다양한 활용을 함께 살펴야 할 역사적 유산으로 평가받는다.",
     "expo_intro": "광주 5.18 전시의 시각 아카이브를 탐색하세요.",
+    "expo_vr_title": "가상 전시",
+    "expo_vr_sub": "광주 5.18 전시를 3D로 둘러보세요",
+    "expo_vr_enter": "입장",
     "expo_photo_caption": "<strong>엘리오 르클레르</strong>, <em>구스타브 에펠 대학교, 프랑스, 2025</em>",
     // --- PHOTO CAPTIONS ---
     "photo_1_1": "<strong>나경택</strong>, <em>전남대학교 교내에서 반민족 반민주화 세력 장례식을 치르고 있는 학생들, 1980년 5월 3일, 흑백 네거티브 24×36mm</em>, 5·18민주화운동기록관",
