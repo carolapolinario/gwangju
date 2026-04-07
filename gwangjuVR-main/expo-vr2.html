@@ -8,8 +8,9 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
-    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
-    #scene-touch { position: fixed; inset: 0; z-index: 1; display: none; touch-action: none; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; }
+    #scene-touch { position: fixed; inset: 0; z-index: 1; display: none; touch-action: none; pointer-events: none; }
+    @media (pointer: coarse) { #scene-touch { pointer-events: auto; } }
 
     #ui {
       position: fixed;
