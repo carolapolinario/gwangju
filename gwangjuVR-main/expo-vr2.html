@@ -1047,6 +1047,7 @@ document.addEventListener('pointermove', e => {
 
 let touches = {};
 renderer.domElement.addEventListener('touchstart', e => {
+  if (e.target !== renderer.domElement) return;
   [...e.changedTouches].forEach(t => { touches[t.identifier] = {x: t.clientX, y: t.clientY, moved: false}; });
 });
 renderer.domElement.addEventListener('touchmove', e => {
@@ -1166,14 +1167,17 @@ document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(btn => {
 
 // overlay
 const overlayEl = document.getElementById('overlay');
-overlayEl.querySelector('.enter-btn').addEventListener('click', e => {
-  e.stopPropagation();
+function dismissOverlay() {
   overlayEl.style.opacity = '0';
   setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
-});
-overlayEl.addEventListener('click', () => {
-  overlayEl.style.opacity = '0';
-  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
+}
+['click', 'touchend'].forEach(ev => {
+  overlayEl.querySelector('.enter-btn').addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation(); dismissOverlay();
+  }, { passive: false });
+  overlayEl.addEventListener(ev, e => {
+    e.preventDefault(); dismissOverlay();
+  }, { passive: false });
 });
 
 // resize
