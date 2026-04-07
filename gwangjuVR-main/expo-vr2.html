@@ -375,14 +375,14 @@
 <div id="overlay">
   <h1>Gwangju 5.18</h1>
   <div id="lang-picker">
-    <button class="lang-btn active" data-lang="fr">FR</button>
+    <button class="lang-btn active" data-lang="fr" onclick="_vrLang('fr')">FR</button>
     <span class="lang-sep">·</span>
-    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="en" onclick="_vrLang('en')">EN</button>
     <span class="lang-sep">·</span>
-    <button class="lang-btn" data-lang="ko">한국어</button>
+    <button class="lang-btn" data-lang="ko" onclick="_vrLang('ko')">한국어</button>
   </div>
   <p id="overlay-sub">Avancez · Regardez à droite.</p>
-  <button class="enter-btn" id="enter-btn">Entrer</button>
+  <button class="enter-btn" id="enter-btn" onclick="_vrEnter()">Entrer</button>
 </div>
 
 <div id="click-hint">Cliquez sur un panneau</div>
@@ -393,11 +393,11 @@
 </div>
 
 <div id="lang-hud">
-  <button class="lang-hud-btn active" data-lang="fr">FR</button>
+  <button class="lang-hud-btn active" data-lang="fr" onclick="_vrLang('fr')">FR</button>
   <span class="lang-hud-sep">·</span>
-  <button class="lang-hud-btn" data-lang="en">EN</button>
+  <button class="lang-hud-btn" data-lang="en" onclick="_vrLang('en')">EN</button>
   <span class="lang-hud-sep">·</span>
-  <button class="lang-hud-btn" data-lang="ko">한국어</button>
+  <button class="lang-hud-btn" data-lang="ko" onclick="_vrLang('ko')">한국어</button>
 </div>
 
 <!-- mobile controls -->
@@ -427,6 +427,38 @@
     <button id="lb-next"><span class="t-next">Suivant</span> →</button>
   </div>
 </div>
+
+<script>
+// UI functions defined outside the module so they work even if WebGL fails
+var _vrTexts = {
+  fr: { sub: 'Avancez · Regardez à droite.', enter: 'Entrer' },
+  en: { sub: 'Move forward · Look right.', enter: 'Enter' },
+  ko: { sub: '앞으로 이동 · 오른쪽을 보세요.', enter: '입장' }
+};
+var _vrCurrentLang = 'fr';
+function _vrLang(code) {
+  _vrCurrentLang = code;
+  var t = _vrTexts[code];
+  if (t) {
+    document.getElementById('overlay-sub').textContent = t.sub;
+    document.getElementById('enter-btn').textContent = t.enter;
+  }
+  document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-lang') === code);
+  });
+  if (window._vrApplyLangFull) window._vrApplyLangFull(code);
+}
+function _vrEnter() {
+  var overlay = document.getElementById('overlay');
+  overlay.style.opacity = '0';
+  setTimeout(function() {
+    overlay.style.display = 'none';
+    var st = document.getElementById('scene-touch');
+    if (st) st.style.display = 'block';
+    if (window._vrSceneActive !== undefined) window._vrSceneActive = true;
+  }, 600);
+}
+</script>
 
 <script type="module">
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
@@ -997,6 +1029,8 @@ let yaw = 0, pitch = 0;
 let isDragging = false, lastX = 0, lastY = 0;
 let mouseDownX = 0, mouseDownY = 0;
 let sceneActive = false;
+window._vrSceneActive = false;
+Object.defineProperty(window, '_vrSceneActive', { set: v => { sceneActive = v; }, get: () => sceneActive });
 const MIN_Z = -(CORRIDOR_LENGTH - 0.5), MAX_Z = -0.3;
 const MOUSE_SENS = 0.0025, TOUCH_SENS = 0.004;
 let camX = 0, camY = 1.65, camZ = -0.3;
@@ -1138,6 +1172,7 @@ const lang = {
 
 let currentLang = 'fr';
 
+window._vrApplyLangFull = function(code) { applyLang(code); };
 function applyLang(code) {
   currentLang = code;
   const t = lang[currentLang];
@@ -1159,18 +1194,11 @@ function applyLang(code) {
   }
 }
 
-document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(btn => {
-  btn.addEventListener('click', () => applyLang(btn.dataset.lang));
-});
-
-// overlay
+// overlay click on background also dismisses
 const overlayEl = document.getElementById('overlay');
-function dismissOverlay() {
-  overlayEl.style.opacity = '0';
-  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; sceneTouchEl.style.display = 'block'; }, 600);
-}
-overlayEl.querySelector('.enter-btn').addEventListener('click', dismissOverlay);
-overlayEl.addEventListener('click', dismissOverlay);
+overlayEl.addEventListener('click', e => {
+  if (e.target === overlayEl) _vrEnter();
+});
 
 // resize
 window.addEventListener('resize', () => {
