@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gwangju 5.18</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+    canvas { display: block; }
+
+    #ui {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    #controls-hint {
+      color: rgba(0,0,0,0.5);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.55);
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    #vr-btn {
+      pointer-events: all;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 10px 28px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #vr-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); }
+    #vr-btn.hidden { display: none; }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 0.6s;
+    }
+    #overlay h1 {
+      color: #fff;
+      font-size: clamp(1.4rem, 4vw, 2.4rem);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+    #overlay p {
+      color: rgba(255,255,255,0.45);
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    #overlay .enter-btn {
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 12px 36px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #overlay .enter-btn:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
+
+    #lang-picker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      padding: 4px 2px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .lang-btn:hover { color: rgba(255,255,255,0.7); }
+    .lang-btn.active { color: #fff; border-bottom: 1px solid rgba(255,255,255,0.5); }
+    .lang-sep { color: rgba(255,255,255,0.2); font-size: 11px; }
+
+    #lang-hud {
+      position: fixed;
+      top: 24px;
+      right: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .lang-hud-btn {
+      background: rgba(255,255,255,0.5);
+      border: 1px solid rgba(0,0,0,0.1);
+      color: rgba(0,0,0,0.4);
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .lang-hud-btn:hover { background: rgba(255,255,255,0.8); color: rgba(0,0,0,0.7); }
+    .lang-hud-btn.active { background: rgba(0,0,0,0.65); color: #fff; border-color: transparent; }
+    .lang-hud-sep { color: rgba(0,0,0,0.2); font-size: 10px; }
+
+    #click-hint {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(0,0,0,0.5);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.55);
+      padding: 7px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.1);
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    #click-hint.visible { opacity: 1; }
+
+    /* Lightbox */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.93);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      gap: 0;
+      padding: 64px 32px 72px;
+      box-sizing: border-box;
+    }
+    #lightbox-img-wrap {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    #lightbox-img {
+      max-height: 100%;
+      max-width: 60vw;
+      object-fit: contain;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+      cursor: default;
+      display: block;
+    }
+    #lightbox-text {
+      display: none;
+      flex: 0 0 360px;
+      height: 100%;
+      overflow-y: auto;
+      padding: 8px 0 8px 40px;
+      box-sizing: border-box;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    #lightbox-text.visible { display: block; }
+    #lightbox-text::-webkit-scrollbar { width: 4px; }
+    #lightbox-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    #lightbox-text h2 {
+      color: #fff;
+      font-family: serif;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+    #lightbox-text .lb-date {
+      color: rgba(255,255,255,0.45);
+      font-family: serif;
+      font-style: italic;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    #lightbox-text .lb-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      margin: 0 0 18px;
+    }
+    #lightbox-text p {
+      color: rgba(255,255,255,0.8);
+      font-family: serif;
+      font-size: 14px;
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    #lightbox-text .lb-legend {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.35);
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      letter-spacing: 0.04em;
+    }
+    #lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      pointer-events: all;
+      z-index: 10;
+    }
+    #lightbox-close:hover { color: #fff; }
+    #lightbox-nav {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+    }
+    #lightbox-nav button {
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 7px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    #lightbox-nav button:hover { background: rgba(255,255,255,0.15); }
+    #lightbox-counter {
+      position: absolute;
+      top: 22px;
+      left: 28px;
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      font-family: 'Courier New', monospace;
+    }
+
+    #touch-controls {
+      display: none;
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      flex-direction: row;
+      gap: 12px;
+      z-index: 10;
+    }
+    .touch-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.85);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    .touch-btn:active { background: rgba(255,255,255,0.35); }
+
+    @media (max-width: 768px) {
+      #touch-controls { display: flex; }
+      #controls-hint { display: none; }
+
+      #overlay h1 { font-size: 1.4rem; letter-spacing: 0.15em; }
+      #overlay { gap: 14px; }
+
+      #lang-hud { top: auto; bottom: 24px; right: auto; left: 16px; }
+
+      #click-hint { bottom: 170px; font-size: 11px; }
+
+      #ui { bottom: 20px; }
+
+      #lightbox-inner {
+        flex-direction: column;
+        padding: 52px 12px 60px;
+        gap: 12px;
+        overflow-y: auto;
+      }
+      #lightbox-img-wrap { flex: 0 0 auto; height: auto; width: 100%; }
+      #lightbox-img {
+        max-width: 100% !important;
+        max-height: 40vh;
+        width: 100%;
+        object-fit: contain;
+      }
+      #lightbox-text {
+        flex: none;
+        width: 100%;
+        height: auto;
+        max-height: none;
+        padding: 0 4px;
+        overflow-y: visible;
+      }
+      #lightbox-text h2 { font-size: 17px; }
+      #lightbox-text .lb-date { font-size: 13px; }
+      #lightbox-text p { font-size: 13px; line-height: 1.65; }
+      #lightbox-text .lb-legend { font-size: 10px; }
+      #lightbox-close { top: 12px; right: 14px; font-size: 11px; }
+      #lightbox-counter { top: 14px; left: 14px; font-size: 10px; }
+      #lightbox-nav { bottom: 10px; gap: 8px; }
+      #lightbox-nav button { padding: 6px 14px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="overlay">
+  <h1>Gwangju 5.18</h1>
+  <div id="lang-picker">
+    <button class="lang-btn active" data-lang="fr">FR</button>
+    <span class="lang-sep">·</span>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <span class="lang-sep">·</span>
+    <button class="lang-btn" data-lang="ko">한국어</button>
+  </div>
+  <p id="overlay-sub">Avancez · Regardez à droite.</p>
+  <button class="enter-btn" id="enter-btn">Entrer</button>
+</div>
+
+<div id="click-hint">Cliquez sur un panneau</div>
+
+<div id="ui">
+  <div id="controls-hint">W / S · Touches Fléchées · Souris</div>
+  <button id="vr-btn" class="hidden">Entrer en VR</button>
+</div>
+
+<div id="lang-hud">
+  <button class="lang-hud-btn active" data-lang="fr">FR</button>
+  <span class="lang-hud-sep">·</span>
+  <button class="lang-hud-btn" data-lang="en">EN</button>
+  <span class="lang-hud-sep">·</span>
+  <button class="lang-hud-btn" data-lang="ko">한국어</button>
+</div>
+
+<!-- mobile controls -->
+<div id="touch-controls">
+  <div class="touch-btn" id="touch-back">↓</div>
+  <div class="touch-btn" id="touch-fwd">↑</div>
+</div>
+
+<!-- lightbox -->
+<div id="lightbox">
+  <div id="lightbox-counter"></div>
+  <span id="lightbox-close">✕ <span class="t-close">Fermer</span></span>
+  <div id="lightbox-inner">
+    <div id="lightbox-img-wrap">
+      <img id="lightbox-img" src="" alt="" />
+    </div>
+    <div id="lightbox-text">
+      <h2 id="lb-title"></h2>
+      <div class="lb-date" id="lb-date"></div>
+      <hr class="lb-divider" />
+      <div id="lb-body"></div>
+      <div class="lb-legend" id="lb-legend"></div>
+    </div>
+  </div>
+  <div id="lightbox-nav">
+    <button id="lb-prev">← <span class="t-prev">Précédent</span></button>
+    <button id="lb-next"><span class="t-next">Suivant</span> →</button>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = false;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xb8b4ae);
+scene.fog = new THREE.Fog(0xb0aca6, 15, 35);
+
+const camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 1.65, 0);
+
+const CORRIDOR_LENGTH = 80;
+const CORRIDOR_WIDTH  = 9;
+const WALL_HEIGHT     = 7.0;
+
+const floorMat     = new THREE.MeshStandardMaterial({ color: 0xa07848, roughness: 0.92 });
+const ceilMat      = new THREE.MeshStandardMaterial({ color: 0xd0ccc6, roughness: 1.0 });
+const wallMat      = new THREE.MeshStandardMaterial({ color: 0x9c9990, roughness: 0.85 });
+const wallOtherMat = new THREE.MeshStandardMaterial({ color: 0x888580, roughness: 0.88 });
+
+function box(w, h, d, mat, rx=0, ry=0, rz=0, x=0, y=0, z=0) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.rotation.set(rx, ry, rz);
+  m.position.set(x, y, z);
+  scene.add(m);
+  return m;
+}
+
+// structure
+box(CORRIDOR_WIDTH + 8, 0.02, CORRIDOR_LENGTH, floorMat,     0,0,0, 0, 0,           -CORRIDOR_LENGTH/2);
+box(CORRIDOR_WIDTH + 8, 0.15, CORRIDOR_LENGTH, ceilMat,      0,0,0, 0, WALL_HEIGHT, -CORRIDOR_LENGTH/2);
+
+const rightWallX = CORRIDOR_WIDTH / 2;
+box(0.15, WALL_HEIGHT, CORRIDOR_LENGTH, wallMat,      0,0,0, rightWallX, WALL_HEIGHT/2, -CORRIDOR_LENGTH/2);
+box(CORRIDOR_WIDTH, WALL_HEIGHT, 0.15,  wallOtherMat, 0,0,0, 0, WALL_HEIGHT/2, -CORRIDOR_LENGTH);
+box(CORRIDOR_WIDTH, WALL_HEIGHT, 0.15,  wallOtherMat, 0,0,0, 0, WALL_HEIGHT/2, 0.1);
+box(0.05, 0.15, CORRIDOR_LENGTH, new THREE.MeshStandardMaterial({color:0xb0aca6}),
+    0,0,0, rightWallX - 0.1, 0.075, -CORRIDOR_LENGTH/2);
+
+const leftWallX = -CORRIDOR_WIDTH / 2;
+box(0.15, WALL_HEIGHT, CORRIDOR_LENGTH, wallMat, 0,0,0, leftWallX, WALL_HEIGHT/2, -CORRIDOR_LENGTH/2);
+
+// lighting 
+scene.add(new THREE.AmbientLight(0xc8d4dc, 0.9));
+const sun = new THREE.DirectionalLight(0xfff0cc, 2.8);
+sun.position.set(-2, 12, -8);
+sun.castShadow = false;
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xe8ddc8, 0x906840, 0.4));
+
+// AVIF support detection
+let avifSupported = false;
+(function() {
+  const img = new Image();
+  img.onload = function() { avifSupported = (img.width > 0); };
+  img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAABcAAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAEAAAABAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAAB9tZGF0EgAKBzgADlAgIGkyCR/wAABAAACvc2A=';
+})();
+
+function resolveImgUrl(url) {
+  if (!url || !avifSupported) return url;
+  return url.replace('images/', 'images/avif/').replace('.jpg', '.avif');
+}
+
+// panels
+const wallSurface = rightWallX - 0.075 - 0.002;
+const panelMeshes = [];
+const panelImages = [];
+
+const LW = 1.8, LH = 2.2;
+const SW = 0.9, SH = 1.1;
+const GAP = 0.15, SEC_GAP = 1.8;
+const BOARD_Y  = LH / 2 + 0.9;
+const SBOARD_Y = SH / 2 + 0.9;
+
+// canvas texture for description panels 
+function makeDescTexture(title, date, description) {
+  const cw = 512, ch = 640;
+  const cv = document.createElement('canvas');
+  cv.width = cw; cv.height = ch;
+  const ctx = cv.getContext('2d');
+
+  ctx.fillStyle = '#f0ece3';
+  ctx.fillRect(0, 0, cw, ch);
+
+  ctx.strokeStyle = '#2a2825';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(48, 72); ctx.lineTo(cw - 48, 72); ctx.stroke();
+
+  // title -- claude fix 
+  ctx.fillStyle = '#1a1714';
+  ctx.font = 'bold 52px serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(title, 48, 140);
+
+  // date (if any)
+  if (date) {
+    ctx.fillStyle = '#7a6e60';
+    ctx.font = 'italic 28px serif';
+    ctx.fillText(date, 48, 185);
+  }
+
+  // divider
+  ctx.strokeStyle = '#c0b8a8';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(48, 220); ctx.lineTo(cw - 48, 220); ctx.stroke();
+
+  // description — word-wrapped
+  ctx.fillStyle = '#3a3530';
+  ctx.font = '26px serif';
+  ctx.textAlign = 'left';
+  const words = description.split(' ');
+  const maxW = cw - 96;
+  let line = '', y = 275;
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line, 48, y);
+      line = word; y += 38;
+    } else { line = test; }
+  }
+  if (line) ctx.fillText(line, 48, y);
+
+  // bottom rule
+  ctx.strokeStyle = '#2a2825';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(48, ch - 60); ctx.lineTo(cw - 48, ch - 60); ctx.stroke();
+
+  // small footer label
+  ctx.fillStyle = '#9a9080';
+  ctx.font = '18px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Gwangju · 5.18', cw / 2, ch - 30);
+
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// canvas texture for picture panels 
+function makePictureTexture(number) {
+  const cw = 512, ch = 640;
+  const cv = document.createElement('canvas');
+  cv.width = cw; cv.height = ch;
+  const ctx = cv.getContext('2d');
+
+  ctx.fillStyle = '#1e1c1a';
+  ctx.fillRect(0, 0, cw, ch);
+
+  // outer frame
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(24, 24, cw - 48, ch - 48);
+
+  // inner frame
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(36, 36, cw - 72, ch - 72);
+
+  // panel number
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = '22px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(number).padStart(2, '0'), cw / 2, ch / 2);
+
+  ctx.textBaseline = 'alphabetic';
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+const sections = [
+  { title: '1. Manifestations', date: '3 – 16 mai',  desc: 'Coup d\'état et aspirations à la démocratie' },
+  { title: '2. Répression',     date: '18 – 19 mai', desc: 'De la répression à la confrontation' },
+  { title: '3. Soulèvement',    date: '20 – 21 mai', desc: 'De l\'oppression à l\'insurrection' },
+  { title: '4. Résistance',     date: '22 – 26 mai', desc: 'Blocs militaires, lutte armée et solidarité citoyenne' },
+  { title: '5. Écrasement',     date: '27 mai',      desc: 'La bataille finale et l\'héritage du 18 mai' },
+  { title: '6. Deuil',          date: '',            desc: 'Mémoire et identité urbaine' },
+  { title: '7. Photographier',  date: '',            desc: 'Entre témoignage historique et usage probatoire' },
+];
+
+let cursor = -1.5;
+let picCounter = 1;
+const descPanelMap = {};
+
+function panel(type, imgUrl, sectionIdx) {
+  const w = type === 'large' ? LW : SW;
+  const h = type === 'large' ? LH : SH;
+  const y = type === 'large' ? BOARD_Y : SBOARD_Y;
+  cursor -= w / 2;
+
+  let tex;
+  if (type === 'small' && sectionIdx !== undefined) {
+    const s = sections[sectionIdx];
+    tex = makeDescTexture(s.title, s.date, s.desc);
+  } else {
+    tex = makePictureTexture(picCounter++);
+  }
+
+  const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88 });
+
+  if (type === 'large' && imgUrl) {
+    const img = new Image();
+    img.onload = function() {
+      const tex = new THREE.Texture(img);
+      tex.needsUpdate = true;
+      mat.map = tex;
+      mat.needsUpdate = true;
+    };
+    img.onerror = function() {
+      // AVIF failed, fall back to JPG
+      if (img.src !== imgUrl && img.src.indexOf(imgUrl) === -1) {
+        img.src = imgUrl;
+      }
+    };
+    img.src = resolveImgUrl(imgUrl);
+  }
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+  mesh.rotation.y = -Math.PI / 2;
+  mesh.position.set(wallSurface, y, cursor);
+  scene.add(mesh);
+
+  mesh.userData.imgUrl   = imgUrl;
+  mesh.userData.panelIdx = panelImages.length;
+  mesh.userData.baseColor = null;
+  if (type === 'small' && sectionIdx !== undefined) {
+    descPanelMap[panelImages.length] = sectionIdx;
+  }
+  panelMeshes.push(mesh);
+  panelImages.push(imgUrl);
+
+  cursor -= w / 2 + GAP;
+}
+
+function section(layout, sectionIdx) {
+  for (const item of layout) panel(item.type, item.img || null, item.type === 'small' ? sectionIdx : undefined);
+  cursor -= SEC_GAP;
+}
+
+section([
+  { type: 'small', img: 'images/section1_desc.jpg' },
+  { type: 'large', img: 'images/section1_panneaux_1.jpg' },
+  { type: 'large', img: 'images/section1_panneaux_2.jpg' },
+  { type: 'large', img: 'images/section1_panneaux_3.jpg' },
+], 0);
+section([
+  { type: 'small', img: 'images/section2_desc.jpg' },
+  { type: 'large', img: 'images/section2_panneaux_1.jpg' },
+  { type: 'large', img: 'images/section2_panneaux_2.jpg' },
+  { type: 'large', img: 'images/section2_panneaux_3.jpg' },
+], 1);
+section([
+  { type: 'small', img: 'images/section3_desc.jpg' },
+  { type: 'large', img: 'images/section3_panneaux_1.jpg' },
+  { type: 'large', img: 'images/section3_panneaux_2.jpg' },
+], 2);
+section([
+  { type: 'large', img: 'images/section4_panneaux_1.jpg' },
+  { type: 'small', img: 'images/section4_desc.jpg' },
+  { type: 'large', img: 'images/section4_panneaux_2.jpg' },
+  { type: 'large', img: 'images/section4_panneaux_3.jpg' },
+  { type: 'large', img: 'images/section4_panneaux_4.jpg' },
+], 3);
+section([
+  { type: 'small', img: 'images/section5_desc.jpg' },
+  { type: 'large', img: 'images/section5_panneaux_1.jpg' },
+  { type: 'large', img: 'images/section5_panneaux_2.jpg' },
+], 4);
+section([
+  { type: 'small', img: 'images/section6_desc.jpg' },
+  { type: 'large', img: 'images/section6_panneaux_1.jpg' },
+  { type: 'large', img: 'images/section6_panneaux_2.jpg' },
+], 5);
+section([
+  { type: 'small', img: 'images/section7_desc.jpg' },
+  { type: 'large', img: 'images/section7_panneaux_1.jpg' },
+  { type: 'large', img: 'images/section7_panneaux_2.jpg' },
+], 6);
+
+
+const sectionContent = {
+  en: [
+    {
+      title: "1. Protests",
+      date: "May 3–16",
+      body: [
+        "The assassination of General Park on October 26, 1979 sparked widespread protests among the Korean people, who had endured many years of dictatorship. Their main demands included autonomy for universities, the lifting of martial law, and guarantees of fundamental workers' rights.",
+        "But this \"springtime of democracy\" was cut short on December 12, 1979, by another coup d'état that brought General Chun Doo-hwan to power. From then on, demands became more insistent and protests gained new momentum.",
+        "On May 10, representatives of student unions from across the country called for the lifting of martial law and the resignation of Chun Doo-hwan. A few days later, on May 15, several hundred thousand people took part in a large demonstration in Seoul, but faced with the high risk of military intervention and low citizen participation, the movement lost momentum.",
+        "However, this is not the case in Gwangju. The birthplace of protests against central government since the Donghak Peasant Revolution (1894–1895), a center of resistance during Japanese colonization, and a marginalized area during the dictatorship, the city of opposition leader Kim Dae-jung embodies protest more than ever.",
+        "There, Chonnam National University and Chosun National University found themselves at the forefront of the protests. From May 8 to 16, they organized a \"rally for democratization\" that drew participants from far beyond the student body.",
+        "On May 16, on the 19th anniversary of Park Chung-hee's coup d'état, tens of thousands of people gathered peacefully in front of the provincial government headquarters, demanding the lifting of the state of emergency and the departure of the military. Students in Gwangju then decided to meet on May 19 in front of the main entrance of Chonnam National University.",
+        "However, at midnight on May 17, the military junta extended the state of emergency to the entire country and proceeded with the mass arrest of political figures, opponents, and student leaders.",
+        "This decision, which had serious consequences, sparked the uprising of May 18."
+      ],
+      legend: "Na Kyung-taek, Students confront riot police in front of the main entrance to Chonnam National University, May 8, 1980, Black and white negative, 24 × 36 mm, Gwangju, May 18 Archives."
+    },
+    {
+      title: "2. Repression",
+      date: "May 18–19",
+      body: [
+        "During the night of May 17, the military junta announced \"the extension of the state of emergency to the entire country\" and the closure of all universities. Twenty-four opposition politicians and numerous figures involved in the fight for democracy were arrested.",
+        "More than 25,000 soldiers, mainly from the airborne brigades, the 20th Division, and the Marines, were deployed to 136 locations across the country, including 31 universities and television stations, to carry out a large-scale operation to arrest student leaders. On May 18 alone, 549 people were arrested, including 227 students.",
+        "On May 18, students in Gwangju organized a demonstration demanding the withdrawal of the airborne brigades. At around 2:30 a.m., troops from the 7th Airborne Brigade and the 31st Division were deployed to Chonnam National University, Chosun University, and eight other technical colleges. The first clashes took place in the morning in front of the main entrance to Chonnam National University. The students, chased by soldiers armed with rifles and batons, took refuge in the city center and continued their demonstration. The police then called in riot police.",
+        "In the afternoon, airborne forces entered the streets of Geumnam-ro and Chungjang-ro, indiscriminately striking and arresting passersby. In a single day, more than 400 citizens were arrested and many were injured. The streets of Gwangju were plunged into chaos.",
+        "On May 19, driven by anger, citizens gathered again in the city center, while the military used tear gas, indiscriminately arrested young people, beat them, and then loaded them, sometimes naked, into military trucks. For their part, residents continued to resist by erecting barricades using stones, flower pots, sidewalk slabs, and metal barriers. They stood together and sang the national anthem, the \"Song of Justice,\" and \"Our Wish is Reunification,\" while continuing to fight.",
+        "The confrontation fuels anger, while fear turns into resistance. The clashes become increasingly violent."
+      ],
+      legend: "Na Kyung-taek, Airborne troops charging on Geumnam-ro, May 19, 1980, Black & white negative, 24 × 36 mm, Gwangju, May 18 Archives.\n\nCollective resignation letter from Jeonnam Maeil journalists, May 20, 1980, Gwangju, May 18 Archives. On May 20, journalists from Jeonnam Maeil (now Gwangju Ilbo) submitted their collective resignation: \"We saw it. We saw with our own eyes people being dragged away like dogs and dying. But we couldn't write a single line in the newspaper. That is why we are putting down our pens in shame.\""
+    },
+    {
+      title: "3. Uprising",
+      date: "May 20–21",
+      body: [
+        "On May 20, as the movement's support base expanded considerably, winning over large sections of the population of Gwangju, the demonstration turned into a widespread uprising.",
+        "At around 7 p.m., a procession consisting of a truck, 11 buses, and approximately 200 taxis completely filled Geumnam-ro. With their headlights on and horns blaring, they headed toward the provincial government building. This show of force gave the protesters new energy and marked a real turning point in the uprising.",
+        "In response to the media blackout, protesters stormed the MBC and KBS stations and set them on fire. In the evening, violent clashes broke out at Gwangju train station, a strategic point for the transport of military equipment. This is where the first shooting took place: seven civilians were killed, many people were injured, and a soldier died after being hit by a vehicle driven by protesters.",
+        "At dawn on May 21, two protesters killed during the previous day's clashes were transported on a cart, covered with the national flag, and brought to Geumnam-ro. The presence of the bodies galvanized the crowd. The street filled with protesters, and the uprising reached its peak. The army general staff then triggered the highest alert level, known as \"Jindotgae n.1.\" At around 1 p.m., as loudspeakers blared the national anthem from the provincial government building, the 11th Airborne Brigade opened fire on the demonstrators.",
+        "In response, the population armed themselves by recovering rifles from civil defense depots in Naju and Hwa-sun, near Gwangju, and prepared to fight back. On May 21 alone, 45 civilians were killed and hundreds more wounded.",
+        "Faced with fierce resistance from citizens, martial law troops withdrew from the city center on the afternoon of May 21. They then blocked access to Gwangju, isolating the city from the outside world."
+      ],
+      legend: "Lee Chang-sung, Martial law troops confronting protesters on Geumnam-ro, May 21, 1980, Black and white negative, 24 × 36 mm, Gwangju, May 18 Archives."
+    },
+    {
+      title: "4. Resistance",
+      date: "May 22–26",
+      body: [
+        "After the withdrawal of troops, the main roads leading to other regions were blocked and communications suspended, cutting Gwangju off from the rest of the world. However, the city did not collapse and managed to maintain order and organize itself.",
+        "Every day, tens of thousands of citizens gathered in front of the provincial government headquarters to hold rallies in defense of democracy. Citizens participated in blood drives, and shopkeepers and women distributed meals to passersby. Gwangju became a city free of theft and crime, demonstrating the potential of a new, united community.",
+        "Under the strict control of the new military regime, the national media labelled the citizens as \"rioters.\" But, despite the danger, foreign journalists entered Gwangju and reported that, despite impressive sacrifices, the inhabitants were maintaining order while demanding democracy.",
+        "The riots predicted by the regime did not occur. Gwangju realized, even temporarily, the dream of Daedong Sesang: a society based on autonomy and solidarity.",
+        "However, this calm was short-lived. As the truth about the massacre spread and sympathy for the uprising grew, the new military regime moved toward a radical decision: sending a massive military force to Gwangju. The prospect of bloody repression became increasingly palpable."
+      ],
+      legend: "Lee Chang-sung, Masked members of the mobile brigade armed with rifles patrol Geumnam-ro, May 22, 1980, Color negative, 24 × 36 mm, Gwangju, May 18 Archives.\n\nThe Korea Times, Jürgen Hinzpeter, journalist for German broadcaster NDR, filming a speech at the provincial government building, May 23, 1980, Color negative, 24 × 36 mm, Seoul, The Korea Times."
+    },
+    {
+      title: "5. Suppression",
+      date: "May 27",
+      body: [
+        "The military regime prepared its final suppression operation by deploying the 11th Airborne Brigade and the 20th Division, after obtaining approval from the United States.",
+        "On May 26, the military called on the citizen militias to surrender. However, many residents remained determined to defend the Provincial Office, pledging to resist until the very end. Facing a heavily armed army equipped with tanks and helicopters, they knew the fight was almost certainly lost. Yet they chose to risk their lives in the name of the democratic cause.",
+        "On the morning of May 27, the military launched its operation to retake control. Seventeen militia members were killed and around 300 were disarmed. After ten days of uprising, 166 people had lost their lives, and approximately 5,000 others had been wounded or arrested.",
+        "The echoes of May 18 reappeared in the June Democratic Movement of 1987. One year later, the atrocities committed during the suppression of the uprising were officially revealed during the 1988 parliamentary hearing on \"The Truth of the Gwangju Democratic Movement.\"",
+        "In 1995, the Special Act on the May 18 Democratic Movement allowed former presidents Chun Doo-hwan and Roh Tae-woo to be brought to justice.",
+        "In 2011, testimonies, judicial records, photographs, videos, newspapers, reporters' notebooks, and hospital archives related to the events of May 18 were inscribed on UNESCO's Memory of the World Register.",
+        "Though brutally suppressed, the citizens' struggle for democracy in Gwangju remains alive. It continues to sustain the process of democratization in South Korea and has left a lasting mark on similar movements across Asia."
+      ],
+      legend: "Na Gyeong-taek, Armored Vehicles in the Provincial Government Square, May 27, 1980, Black-and-white negative, 24 × 36 mm, Gwangju, May 18 Archives."
+    },
+    {
+      title: "6. Mourning",
+      date: "",
+      body: [
+        "In Gwangju, the memory of the events of May 1980 remains an open wound, kept alive through ongoing efforts to commemorate the victims of a brutal repression. This memory has become a fundamental part of the city's identity.",
+        "The remembrance of the massacres, deeply inscribed in the urban landscape, is now omnipresent. It is sustained by a commemorative policy involving the municipality, the May 18 Foundation, the Municipal Archives, and numerous civic organizations.",
+        "The Jeonil Building, overlooking May 18 Square, still bears the marks of machine-gun fire from army helicopters that targeted demonstrators gathered there. Several floors of the building have since been transformed into a museum.",
+        "Similarly, the clock on May 18 Square, already standing in 1980, plays \"March for the Beloved\" every day at 5:18 p.m. — a song composed in tribute to a young couple who were victims of the repression.",
+        "Visitors to Gwangju can also follow a memorial route connecting the main sites associated with the uprising. The route leads from Geumnam Avenue to the Mangwol-dong Cemetery, passing by the former Sangmu military prison, which has since been converted into a museum within what is now known as the \"Freedom Park.\"",
+        "It is also common for May 18 Square — formerly the Provincial Government Square — to be transformed into an open-air exhibition space. Large reproductions of photographs documenting the uprising and its repression are displayed there, contributing to the construction of Gwangju's urban identity.",
+        "More recently, many residents of Gwangju mobilized once again in response to President Yoon Suk-yeol's attempt to impose martial law on December 3, 2024. On December 4, among the crowds gathered in Democracy Square, many survivors of the 1980 repression stood in the front rows, determined that the sacrifice of their comrades would not be in vain."
+      ],
+      legend: "Patrick Chauvel, Moon Gwi-deok (her mother), and Park Geum-suk (her older sister) paying tribute at the coffin of the young Park Geum-hee, May 26, 1980, Color negative, 24 × 36 mm, Gwangju, Restoration Office of the Former Jeonnam Provincial Government Building."
+    },
+    {
+      title: "7. Photographing",
+      date: "",
+      body: [
+        "The events in Gwangju were first documented by Korean press photographers, among whom Na Kyung-taek and Lee Chang-sung stand out. Sent to the scene by their respective newspapers (Gwangju Ilbo and JoongAng Ilbo), they recorded the earliest moments of the uprising.",
+        "They were later joined by photographers working for newspapers based in Seoul, followed by foreign journalists. Among them was Philippe Pons, Tokyo correspondent for Le Monde, who arrived in Seoul on May 20 and, starting on May 22, published a series of daily reports from Gwangju.",
+        "Several international photographers were also present, including Robin Moyer for The Times, Norman Thorpe for The Wall Street Journal, and the French photographers Patrick Chauvel and François Lochon — members of photo agencies Sygma and Gamma respectively. They worked alongside television reporters, including cameraman Jürgen Hinzpeter of German broadcaster ARD, who arrived in Gwangju on the morning of May 20.",
+        "In addition to the extensive work produced by these professional photographers, there were also contributions from amateur photographers, such as Pastor Huntley, who documented the influx of wounded victims and acts of solidarity from within the emergency room of the Gwangju Christian Hospital.",
+        "These images reveal not only the challenges faced by photographers but also the relative freedom with which many were able to operate — contradicting the widespread assumption that these photographs were always captured clandestinely.",
+        "Although these visual records were subject to state censorship until the late 1980s, they were later mobilized for their evidentiary value, helping to establish the reality of the repression. Today, they must also be considered as historical objects in their own right."
+      ],
+      legend: ""
+    }
+  ],
+  ko: [
+    {
+      title: "1. 시위",
+      date: "5월 3일~16일",
+      body: [
+        "1979년 10월 26일 박정희 장군의 암살은 오랜 독재 통치 이후 한국 사회 전반에 걸친 대규모 요구와 항의의 움직임을 촉발했다. 당시 주요 요구 사항은 대학의 자치 보장, 계엄령 해제, 그리고 노동자의 기본권 보장이었다.",
+        "그러나 이른바 '민주주의의 봄'은 1979년 12월 12일 전두환 장군이 권력을 장악한 새로운 군사 쿠데타에 부딪히며 좌절된다. 이후 요구는 더욱 강해졌고, 시민들의 동원과 시위도 새로운 국면을 맞이한다.",
+        "5월 10일, 전국 학생회 대표들은 계엄령 해제와 전두환의 사퇴를 요구했다. 며칠 뒤인 5월 15일에는 수십만 명이 서울에서 대규모 시위에 참여했다. 그러나 군의 개입 가능성이 높고 시민 참여가 충분히 확대되지 못하면서 운동은 점차 동력을 잃게 된다.",
+        "반면 광주에서는 상황이 달랐다. 1894~1895년 동학농민운동 이래 중앙 권력에 대한 저항의 전통을 지닌 도시이자, 일제 식민지 시기에는 저항의 거점이었고, 군사 독재 시기에는 주변부로 소외되었던 이곳은 김대중이라는 대표적 야당 지도자의 고향이기도 했다.",
+        "이곳에서는 전남대학교와 조선대학교가 시위의 선두에 섰다. 5월 8일부터 16일까지 이들은 '민주화를 위한 집회'를 주도했으며, 이는 학생들뿐 아니라 더 넓은 시민 사회로 빠르게 확산되었다.",
+        "5월 16일, 박정희의 5·16 군사 쿠데타 19주년을 맞아 수만 명의 시민이 전라남도 도청 앞에 평화롭게 모여 비상계엄 해제와 군부의 퇴진을 요구했다. 광주의 학생들은 5월 19일 전남대학교 정문 앞에서 다시 모이기로 결정했다.",
+        "그러나 5월 17일 자정, 군사 정권은 계엄령을 전국으로 확대하고 정치인, 반대 인사, 학생 지도자들을 대규모로 체포했다.",
+        "이 중대한 결정이 바로 5월 18일 봉기의 직접적인 계기가 되었다."
+      ],
+      legend: "나경택, 전남대학교 정문 앞에서 전투 경찰과 대치하는 학생들, 1980년 5월 8일, 흑백 네거티브, 24×36mm, 광주, 5·18 기록관."
+    },
+    {
+      title: "2. 탄압",
+      date: "5월 18일~19일",
+      body: [
+        "5월 17일 밤, 군사 정권은 '전국 계엄령 확대'와 모든 대학의 휴교를 발표했다. 야당 정치인 24명과 수많은 민주화 운동 인사들이 체포되었다.",
+        "공수부대, 제20사단, 해병대 등 약 25,000명의 군인들이 전국 136개 지점에 배치되었고, 5월 18일 하루만 해도 549명이 체포되었으며 이 중 227명이 학생이었다.",
+        "5월 18일 광주에서는 학생들이 공수부대의 철수를 요구하는 시위를 조직했다. 새벽 2시 30분경, 제7공수여단과 제31사단이 전남대학교, 조선대학교, 그리고 8개의 다른 전문대학에 투입되었다. 첫 충돌은 오전 전남대학교 정문 앞에서 발생했다.",
+        "오후에는 공수부대가 금남로와 충장로 거리를 진입하며, 행인들을 구분 없이 구타하고 체포했다. 하루 동안 400명 이상이 체포되었고, 많은 부상자가 발생했다.",
+        "5월 19일, 분노에 불타는 시민들은 다시 시내 중심에 집결했다. 군은 최루탄을 사용하고 청년들을 구분 없이 체포하며 구타한 뒤, 때로는 옷을 벗긴 상태로 군용 트럭에 태워 이동시켰다. 시민들은 돌, 화분, 보도블록, 철제 울타리를 이용해 바리케이드를 쌓으며 저항을 이어갔다.",
+        "이러한 대치는 분노를 증폭시키고, 공포는 저항으로 바뀌었다."
+      ],
+      legend: "나경택, 금남로를 돌격하는 공수부대, 1980년 5월 19일, 흑백 네거티브, 24×36mm, 광주, 5·18 기록관.\n\n전남매일 기자 집단 사직서, 1980년 5월 20일, 광주, 5·18 기록관. \"우리는 보았다. 우리가 직접 눈으로 사람들이 개처럼 끌려가 죽는 것을 보았다. 그러나 신문에 한 줄도 쓰지 못했다. 그래서 부끄러운 마음으로 펜을 내려놓는다.\""
+    },
+    {
+      title: "3. 봉기",
+      date: "5월 20일~21일",
+      body: [
+        "5월 20일, 광주 시민들의 참여가 급격히 확대되면서 시위는 대규모 봉기로 발전했다.",
+        "오후 7시경, 1대의 트럭, 11대의 버스, 약 200대의 택시로 구성된 행렬이 금남로를 가득 메웠다. 전조등은 켜지고 경적이 울리며, 이들은 도청 건물로 향했다. 이러한 힘의 과시는 시위대에게 새로운 에너지를 불어넣으며 봉기에 중요한 전환점을 마련했다.",
+        "언론의 침묵에 대응해, 일부 시위대는 MBC와 KBS 방송국을 습격하고 불을 질렀다. 저녁에는 광주역에서 격렬한 충돌이 발생하여 민간인 7명이 사망하고 다수가 부상했다.",
+        "5월 21일 새벽, 전날 충돌로 사망한 시위대 2명의 시신이 국기(태극기)로 덮인 채 수레에 실려 금남로로 옮겨졌다. 시신의 등장은 군중을 고무시켰고, 봉기는 절정에 이르렀다. 오후 1시경 제11공수여단이 시위대에 총격을 가했다.",
+        "이에 맞서 시민들은 나주와 화순 인근 민방위 창고에서 소총을 확보하며 무장했다. 이날 하루만 해도 45명의 민간인이 사망하고 수백 명이 부상당했다.",
+        "시민들의 끈질긴 저항에 맞서 계엄군은 5월 21일 오후 시내 중심에서 철수하며 도시를 외부와 고립시켰다."
+      ],
+      legend: "이창성, 금남로에서 시위대와 대치하는 계엄군, 1980년 5월 21일, 흑백 네거티브, 24×36mm, 광주, 5·18 기록관."
+    },
+    {
+      title: "4. 저항",
+      date: "5월 22일~26일",
+      body: [
+        "군대가 철수한 후, 광주를 외부와 연결하는 주요 도로는 차단되고 통신이 중단되어 도시는 세상과 단절되었다. 그럼에도 불구하고 도시는 무너지지 않고 질서를 유지하며 스스로 조직을 꾸렸다.",
+        "매일 수만 명의 시민이 도청 앞에 모여 민주주의 수호를 위한 집회를 열었다. 시민들은 헌혈에 참여했고, 상인과 여성들은 길을 지나가는 사람들에게 식사를 나눠 주었다. 광주는 도둑질과 범죄가 없는 도시가 되었다.",
+        "새 군사 정권의 엄격한 통제 아래 국내 언론은 시민들을 '폭도'로 규정했다. 그러나 위험을 무릅쓴 외신 기자들은 광주에 들어와 시민들이 질서를 유지하며 민주주의를 요구하고 있음을 보도했다.",
+        "정권이 예상했던 폭동은 일어나지 않았다. 광주는 잠시나마 대동세상의 꿈, 즉 자치와 연대에 기반한 사회를 실현했다.",
+        "하지만 이러한 평온은 오래가지 못했다. 학살의 진실이 퍼지고 봉기에 대한 동정 여론이 커지면서, 새 군사 정권은 대규모 군사력 투입을 결정했다."
+      ],
+      legend: "이창성, 금남로를 순찰하는 복면 기동대원들, 1980년 5월 22일, 컬러 네거티브, 24×36mm, 광주, 5·18 기록관.\n\n코리아 타임스, 독일 NDR 방송 기자 위르겐 힌슈페터가 전라남도 도청 광장에서 연설을 촬영하는 모습, 1980년 5월 23일, 컬러 네거티브, 24×36mm, 서울, 코리아 타임스."
+    },
+    {
+      title: "5. 진압",
+      date: "5월 27일",
+      body: [
+        "군사 정권은 미군의 승인도 얻은 뒤 제11공수여단과 제20사단을 투입하여 최종 진압 작전을 준비했다.",
+        "5월 26일, 군은 시민군에게 항복을 요구했으나, 많은 주민들은 도청을 지키며 끝까지 싸울 것을 다짐했다. 탱크와 헬리콥터로 무장한 군대와 맞서면서, 그들은 승산이 거의 없는 싸움임을 알았지만 민주주의를 위해 목숨을 걸었다.",
+        "5월 27일 오전, 군의 재진입 작전이 시작되었다. 시민군 17명이 사망하고 약 300명이 무장 해제되었다. 10일간의 봉기 끝에 총 166명이 사망했으며, 약 5,000명이 부상하거나 체포되었다.",
+        "5·18의 울림은 1987년 6월 항쟁에서 다시 이어졌다. 1988년 국회 청문회에서 당시 진압의 참상이 공식적으로 밝혀졌고, 1995년에는 5·18 민주화운동 특별법이 제정되어 전두환, 노태우 전 대통령이 사법 처리되었다.",
+        "5·18과 관련된 기록들은 2011년 유네스코 세계기록유산으로 등재되었다.",
+        "피로 억압당했지만, 광주 시민들의 민주주의를 향한 투쟁은 여전히 살아 있으며, 한국의 민주화 과정에 기여하고 아시아 전역의 유사한 운동에도 깊은 영향을 남겼다."
+      ],
+      legend: "나경택, 전라남도 도청 광장의 장갑차, 1980년 5월 27일, 흑백 네거티브, 24×36mm, 광주, 5·18 기록관."
+    },
+    {
+      title: "6. 애도",
+      date: "",
+      body: [
+        "광주에서 1980년 5월의 기억은 여전히 아물지 않은 상처로 남아 있으며, 참혹한 탄압의 희생자들을 기리는 기억 작업을 통해 생생하게 유지되고 있다. 이러한 기억은 도시 정체성의 중요한 구성 요소가 된다.",
+        "학살의 기억은 도시 공간 속에 깊이 새겨져 있다. 이는 광주시, 5·18 재단, 시립 기록관과 수많은 시민 단체가 함께하는 기억 정책에 의해 뒷받침된다.",
+        "5·18 광장에 면한 전일빌딩에는 당시 군 헬리콥터가 시위대를 향해 발사한 기관총 자국이 남아 있으며, 현재는 여러 층에 걸쳐 박물관이 운영되고 있다.",
+        "5·18 광장의 시계는 매일 오전 5시 18분에 희생된 젊은 부부를 기리는 곡인 '사랑하는 이들의 행진'을 울린다.",
+        "광주를 찾는 관광객들은 금남로에서 출발해 망월동 묘지, 그리고 자유공원으로 조성된 상무 군사형무소 박물관에 이르는 봉기 관련 주요 유적지를 둘러볼 수 있다.",
+        "5·18 광장은 종종 야외 전시 공간으로 활용되어, 봉기와 탄압을 기록한 대형 사진들이 전시되며 도시 정체성을 형성하는 역할을 한다.",
+        "최근에도 많은 광주 시민들이 2024년 12월 3일 윤석열 대통령의 계엄령 시도에 맞서 다시 모였다. 12월 4일 민주광장에 모인 시민들 중에는 당시 탄압을 겪은 생존자들이 앞줄에 서 있었다."
+      ],
+      legend: "파트릭 쇼벨, 문귀덕(어머니)과 박금숙(언니)이 어린 박금희의 관 앞에서 헌화하는 모습, 1980년 5월 26일, 컬러 네거티브, 24×36mm, 광주, 전남 구 도청 복원 사무소."
+    },
+    {
+      title: "7. 사진 기록",
+      date: "",
+      body: [
+        "광주 사건은 처음에 한국 언론 사진기자들에 의해 취재되었으며, 그중에서도 나경택과 이창성이 선두에 있었다. 이들은 각각 전남일보와 중앙일보 소속으로 봉기의 초기 순간을 기록했다.",
+        "이어 서울 언론사 사진기자들과 외신 기자들이 합류했다. 대표적인 사례로 르몽드 도쿄 특파원 필립 폰스가 있으며, 그는 5월 22일부터 광주에서 매일 기사를 작성했다.",
+        "외신 사진기자들도 현장에 있었다. 로빈 모이어(타임스), 노먼 소프(월스트리트 저널), 그리고 프랑스의 파트릭 쇼벨(Sygma)과 프랑수아 로숑(Gamma)이 그들이다. 독일 ARD 방송의 카메라맨 위르겐 힌슈페터와 함께 5월 20일 아침 광주에 도착했다.",
+        "전문 사진기자들 외에도 아마추어 사진가들의 기록도 존재한다. 헌틀리 목사는 광주 기독병원 응급실에서 부상자들과 연대의 모습을 기록했다.",
+        "이 사진들은 사진가들이 겪은 어려움과 당시 허용된 활동의 자유를 동시에 보여 준다. 국가 검열이 1980년대 말까지 이어졌음에도, 이 기록들은 이후 탄압의 실체를 입증하는 증거로 활용되었다.",
+        "이제 이 사진들은 단순한 기록을 넘어, 사진 제작의 조건, 활용 방식, 유통 과정까지 함께 조망해야 할 역사적 자료로 평가된다."
+      ],
+      legend: ""
+    }
+  ]
+};
+
+// panelIdx corresponds to which sectionIdx
+
+// panel hover 
+const raycaster = new THREE.Raycaster();
+const pointer   = new THREE.Vector2();
+let hoveredMesh = null;
+
+function updatePointer(clientX, clientY) {
+  pointer.x =  (clientX / window.innerWidth)  * 2 - 1;
+  pointer.y = -(clientY / window.innerHeight) * 2 + 1;
+}
+
+function getHit(px, py) {
+  raycaster.setFromCamera({ x: px, y: py }, camera);
+  const hits = raycaster.intersectObjects(panelMeshes);
+  return hits.length > 0 ? hits[0].object : null;
+}
+
+
+let currentIdx = 0;
+const lightbox     = document.getElementById('lightbox');
+const lbImg        = document.getElementById('lightbox-img');
+const lbCounter    = document.getElementById('lightbox-counter');
+const lbClose      = document.getElementById('lightbox-close');
+const lbPrev       = document.getElementById('lb-prev');
+const lbNext       = document.getElementById('lb-next');
+
+function openLightbox(idx) {
+  currentIdx = idx;
+  const url = panelImages[idx];
+  if (!url) return;
+  lbImg.src = url;
+  lbCounter.textContent = lang[currentLang].counter(idx + 1, panelImages.length);
+
+  //  text panel if this is a desc panel and lang is not FR
+  const sectionIdx = descPanelMap[idx];
+  const lbText = document.getElementById('lightbox-text');
+  if (sectionIdx !== undefined && currentLang !== 'fr') {
+    const data = sectionContent[currentLang][sectionIdx];
+    document.getElementById('lb-title').textContent = data.title;
+    document.getElementById('lb-date').textContent  = data.date;
+    const bodyEl = document.getElementById('lb-body');
+    bodyEl.innerHTML = data.body.map(p => `<p>${p}</p>`).join('');
+    const legendEl = document.getElementById('lb-legend');
+    legendEl.innerHTML = data.legend
+      ? data.legend.split('\n\n').map(l => `<p>${l}</p>`).join('')
+      : '';
+    // narrow image in split mode
+    document.getElementById('lightbox-img').style.maxWidth = '55vw';
+    lbText.classList.add('visible');
+  } else {
+    document.getElementById('lightbox-img').style.maxWidth = '';
+    lbText.classList.remove('visible');
+  }
+
+  lightbox.classList.add('open');
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  lbImg.src = '';
+}
+function showAdj(dir) {
+  let next = currentIdx + dir;
+  // skip panels with no image
+  while (next >= 0 && next < panelImages.length && !panelImages[next]) next += dir;
+  if (next >= 0 && next < panelImages.length) openLightbox(next);
+}
+
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+lbClose.addEventListener('click', closeLightbox);
+lbPrev.addEventListener('click', e => { e.stopPropagation(); showAdj(-1); });
+lbNext.addEventListener('click', e => { e.stopPropagation(); showAdj(1); });
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape')      closeLightbox();
+  if (e.key === 'ArrowRight')  showAdj(1);
+  if (e.key === 'ArrowLeft')   showAdj(-1);
+});
+
+// camera
+const keys = {};
+let yaw = 0, pitch = 0;
+let isDragging = false, lastX = 0, lastY = 0;
+let mouseDownX = 0, mouseDownY = 0;
+let sceneActive = false;
+const MIN_Z = -(CORRIDOR_LENGTH - 0.5), MAX_Z = -0.3;
+const MOUSE_SENS = 0.0025, TOUCH_SENS = 0.004;
+let camX = 0, camY = 1.65, camZ = -0.3;
+
+document.addEventListener('keydown', e => {
+  if (lightbox.classList.contains('open')) return;
+  keys[e.code] = true;
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+renderer.domElement.addEventListener('mousedown', e => {
+  if (lightbox.classList.contains('open')) return;
+  isDragging = true;
+  lastX = e.clientX; lastY = e.clientY;
+  mouseDownX = e.clientX; mouseDownY = e.clientY;
+});
+window.addEventListener('mouseup', e => {
+  isDragging = false;
+  if (!sceneActive) return;
+  if (lightbox.classList.contains('open')) return;
+  // only treat as click if mouse barely moved
+  if (Math.abs(e.clientX - mouseDownX) < 5 && Math.abs(e.clientY - mouseDownY) < 5) {
+    updatePointer(e.clientX, e.clientY);
+    const hit = getHit(pointer.x, pointer.y);
+    if (hit) openLightbox(hit.userData.panelIdx);
+  }
+});
+window.addEventListener('mousemove', e => {
+  if (!sceneActive) return;
+  updatePointer(e.clientX, e.clientY);
+  if (isDragging) {
+    yaw   -= (e.clientX - lastX) * MOUSE_SENS;
+    pitch -= (e.clientY - lastY) * MOUSE_SENS;
+    pitch = Math.max(-Math.PI*0.4, Math.min(Math.PI*0.4, pitch));
+    lastX = e.clientX; lastY = e.clientY;
+  }
+});
+
+renderer.domElement.addEventListener('dblclick', () => renderer.domElement.requestPointerLock?.());
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement === renderer.domElement) isDragging = false;
+});
+document.addEventListener('pointermove', e => {
+  if (document.pointerLockElement !== renderer.domElement) return;
+  yaw   -= e.movementX * MOUSE_SENS;
+  pitch -= e.movementY * MOUSE_SENS;
+  pitch = Math.max(-Math.PI*0.4, Math.min(Math.PI*0.4, pitch));
+});
+
+let touches = {};
+renderer.domElement.addEventListener('touchstart', e => {
+  [...e.changedTouches].forEach(t => { touches[t.identifier] = {x: t.clientX, y: t.clientY, moved: false}; });
+});
+renderer.domElement.addEventListener('touchmove', e => {
+  e.preventDefault();
+  [...e.changedTouches].forEach(t => {
+    const prev = touches[t.identifier];
+    if (!prev) return;
+    yaw   -= (t.clientX - prev.x) * TOUCH_SENS;
+    pitch -= (t.clientY - prev.y) * TOUCH_SENS;
+    pitch = Math.max(-Math.PI*0.4, Math.min(Math.PI*0.4, pitch));
+    if (Math.abs(t.clientX - prev.x) > 5 || Math.abs(t.clientY - prev.y) > 5) prev.moved = true;
+    touches[t.identifier] = {...prev, x: t.clientX, y: t.clientY};
+  });
+}, { passive: false });
+renderer.domElement.addEventListener('touchend', e => {
+  [...e.changedTouches].forEach(t => {
+    const prev = touches[t.identifier];
+    if (prev && !prev.moved && sceneActive && !lightbox.classList.contains('open')) {
+      updatePointer(t.clientX, t.clientY);
+      const hit = getHit(pointer.x, pointer.y);
+      if (hit) openLightbox(hit.userData.panelIdx);
+    }
+    delete touches[t.identifier];
+  });
+});
+
+// VR
+if ('xr' in navigator) {
+  navigator.xr.isSessionSupported('immersive-vr').then(supported => {
+    if (!supported) return;
+    const btn = document.getElementById('vr-btn');
+    btn.classList.remove('hidden');
+    let vrSession = null;
+    btn.addEventListener('click', async () => {
+      if (!vrSession) {
+        vrSession = await navigator.xr.requestSession('immersive-vr', { requiredFeatures: ['local-floor'] });
+        renderer.xr.setSession(vrSession);
+        btn.textContent = 'Quitter VR';
+        vrSession.addEventListener('end', () => { vrSession = null; btn.textContent = 'Entrer en VR'; });
+      } else { vrSession.end(); }
+    });
+  });
+}
+
+// lang
+const lang = {
+  fr: {
+    sub:      'Avancez · Regardez à droite.',
+    enter:    'Entrer',
+    controls: 'W / S · Touches Fléchées · Souris',
+    vr:       'Entrer en VR',
+    vrExit:   'Quitter VR',
+    hint:     'Cliquez sur un panneau',
+    close:    'Fermer',
+    prev:     'Précédent',
+    next:     'Suivant',
+    counter:  (i, n) => `${i} / ${n}`,
+  },
+  en: {
+    sub:      'Move forward · Look right.',
+    enter:    'Enter',
+    controls: 'W / S · Arrow Keys · Mouse',
+    vr:       'Enter VR',
+    vrExit:   'Exit VR',
+    hint:     'Click a panel to view',
+    close:    'Close',
+    prev:     'Previous',
+    next:     'Next',
+    counter:  (i, n) => `${i} / ${n}`,
+  },
+  ko: {
+    sub:      '앞으로 이동 · 오른쪽을 보세요.',
+    enter:    '입장',
+    controls: 'W / S · 방향키 · 마우스',
+    vr:       'VR 입장',
+    vrExit:   'VR 종료',
+    hint:     '패널을 클릭하세요',
+    close:    '닫기',
+    prev:     '이전',
+    next:     '다음',
+    counter:  (i, n) => `${i} / ${n}`,
+  },
+};
+
+let currentLang = 'fr';
+
+function applyLang(code) {
+  currentLang = code;
+  const t = lang[currentLang];
+  document.getElementById('overlay-sub').textContent = t.sub;
+  document.getElementById('enter-btn').textContent   = t.enter;
+  document.getElementById('controls-hint').textContent = t.controls;
+  document.getElementById('click-hint').textContent  = t.hint;
+  document.querySelector('.t-close').textContent     = t.close;
+  document.querySelector('.t-prev').textContent      = t.prev;
+  document.querySelector('.t-next').textContent      = t.next;
+  const vrBtn = document.getElementById('vr-btn');
+  if (vrBtn) vrBtn.textContent = t.vr;
+  document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  // update counter if lightbox open
+  if (lightbox.classList.contains('open')) {
+    lbCounter.textContent = t.counter(currentIdx + 1, panelImages.length);
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    applyLang(btn.dataset.lang);
+  });
+});
+
+document.querySelectorAll('.lang-hud-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    applyLang(btn.dataset.lang);
+  });
+});
+
+// overlay
+const overlayEl = document.getElementById('overlay');
+overlayEl.querySelector('.enter-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  overlayEl.style.opacity = '0';
+  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
+});
+overlayEl.addEventListener('click', () => {
+  overlayEl.style.opacity = '0';
+  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
+});
+
+// resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// touch walk buttons
+const touchFwd  = document.getElementById('touch-fwd');
+const touchBack = document.getElementById('touch-back');
+const isMobile = () => window.innerWidth <= 768;
+
+function bindTouchWalk(el, keyCode) {
+  el.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); keys[keyCode] = true; }, { passive: false });
+  el.addEventListener('touchend',   e => { e.preventDefault(); e.stopPropagation(); keys[keyCode] = false; }, { passive: false });
+  el.addEventListener('touchcancel',e => { keys[keyCode] = false; });
+}
+bindTouchWalk(touchFwd,  'KeyW');
+bindTouchWalk(touchBack, 'KeyS');
+
+// show touch controls only on mobile
+function updateTouchControlsVisibility() {
+  document.getElementById('touch-controls').style.display =
+    isMobile() ? 'flex' : 'none';
+}
+updateTouchControlsVisibility();
+window.addEventListener('resize', updateTouchControlsVisibility);
+
+// animate
+const MOVE_SPEED = 0.04;
+const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+const clickHint = document.getElementById('click-hint');
+
+renderer.setAnimationLoop(() => {
+  if (!renderer.xr.isPresenting) {
+    if (keys['KeyW'] || keys['ArrowUp'])
+      camZ += new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(0,yaw,0)).z * MOVE_SPEED;
+    if (keys['KeyS'] || keys['ArrowDown'])
+      camZ -= new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(0,yaw,0)).z * MOVE_SPEED;
+    camZ = Math.max(MIN_Z, Math.min(MAX_Z, camZ));
+
+    camera.position.set(camX, camY, camZ);
+    euler.set(pitch, yaw, 0);
+    camera.quaternion.setFromEuler(euler);
+
+    // hover effect via emissive
+    if (sceneActive && !lightbox.classList.contains('open')) {
+      const hit = getHit(pointer.x, pointer.y);
+      if (hit !== hoveredMesh) {
+        if (hoveredMesh) hoveredMesh.material.emissive.set(0x000000);
+        hoveredMesh = hit;
+        if (hoveredMesh) {
+          hoveredMesh.material.emissive.set(0x333028);
+          document.body.style.cursor = 'pointer';
+          clickHint.classList.add('visible');
+        } else {
+          document.body.style.cursor = '';
+          clickHint.classList.remove('visible');
+        }
+      }
+    }
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
