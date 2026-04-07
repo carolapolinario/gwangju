@@ -441,7 +441,9 @@ var _vrTexts = {
   en: { sub: 'Move forward · Look right.',   enter: 'Enter',  mobile: 'This experience is only available\non desktop.' },
   ko: { sub: '앞으로 이동 · 오른쪽을 보세요.',  enter: '입장',   mobile: '이 체험은 데스크톱에서만\n이용 가능합니다.' }
 };
-var _vrCurrentLang = 'fr';
+var _vrCurrentLang = (function() {
+  try { return localStorage.getItem('gwangju_lang') || 'fr'; } catch(e) { return 'fr'; }
+})();
 function _vrLang(code) {
   _vrCurrentLang = code;
   var t = _vrTexts[code];
@@ -456,6 +458,10 @@ function _vrLang(code) {
   });
   if (window._vrApplyLangFull) window._vrApplyLangFull(code);
 }
+// Apply saved language on load
+document.addEventListener('DOMContentLoaded', function() {
+  _vrLang(_vrCurrentLang);
+});
 function _vrEnter() {
   var overlay = document.getElementById('overlay');
   overlay.style.opacity = '0';
@@ -469,6 +475,9 @@ function _vrEnter() {
 </script>
 
 <script type="module">
+// Do not initialize 3D engine on mobile/touch devices
+if (window.matchMedia('(pointer: coarse)').matches) { throw new Error('mobile'); }
+
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
