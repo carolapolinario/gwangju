@@ -1160,13 +1160,7 @@ function applyLang(code) {
 }
 
 document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(btn => {
-  ['click', 'touchend'].forEach(ev => {
-    btn.addEventListener(ev, e => {
-      e.preventDefault();
-      e.stopPropagation();
-      applyLang(btn.dataset.lang);
-    }, { passive: false });
-  });
+  btn.addEventListener('click', () => applyLang(btn.dataset.lang));
 });
 
 // overlay
@@ -1175,14 +1169,8 @@ function dismissOverlay() {
   overlayEl.style.opacity = '0';
   setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; sceneTouchEl.style.display = 'block'; }, 600);
 }
-['click', 'touchend'].forEach(ev => {
-  overlayEl.querySelector('.enter-btn').addEventListener(ev, e => {
-    e.preventDefault(); e.stopPropagation(); dismissOverlay();
-  }, { passive: false });
-  overlayEl.addEventListener(ev, e => {
-    e.preventDefault(); dismissOverlay();
-  }, { passive: false });
-});
+overlayEl.querySelector('.enter-btn').addEventListener('click', dismissOverlay);
+overlayEl.addEventListener('click', dismissOverlay);
 
 // resize
 window.addEventListener('resize', () => {
@@ -1197,9 +1185,9 @@ const touchBack = document.getElementById('touch-back');
 const isMobile = () => window.innerWidth <= 768;
 
 function bindTouchWalk(el, keyCode) {
-  el.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); keys[keyCode] = true; }, { passive: false });
-  el.addEventListener('touchend',   e => { e.preventDefault(); e.stopPropagation(); keys[keyCode] = false; }, { passive: false });
-  el.addEventListener('touchcancel',e => { keys[keyCode] = false; });
+  el.addEventListener('touchstart', e => { e.preventDefault(); keys[keyCode] = true; }, { passive: false });
+  el.addEventListener('touchend',   e => { e.preventDefault(); keys[keyCode] = false; }, { passive: false });
+  el.addEventListener('touchcancel', () => { keys[keyCode] = false; });
 }
 bindTouchWalk(touchFwd,  'KeyW');
 bindTouchWalk(touchBack, 'KeyS');
