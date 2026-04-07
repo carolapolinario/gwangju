@@ -1146,7 +1146,7 @@ function applyLang(code) {
   const vrBtn = document.getElementById('vr-btn');
   if (vrBtn) vrBtn.textContent = t.vr;
   document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.lang === lang);
+    b.classList.toggle('active', b.dataset.lang === code);
   });
   // update counter if lightbox open
   if (lightbox.classList.contains('open')) {
@@ -1154,17 +1154,13 @@ function applyLang(code) {
   }
 }
 
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    applyLang(btn.dataset.lang);
-  });
-});
-
-document.querySelectorAll('.lang-hud-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    applyLang(btn.dataset.lang);
+document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(btn => {
+  ['click', 'touchend'].forEach(ev => {
+    btn.addEventListener(ev, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      applyLang(btn.dataset.lang);
+    }, { passive: false });
   });
 });
 
