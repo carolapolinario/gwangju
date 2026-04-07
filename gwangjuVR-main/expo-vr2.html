@@ -7,7 +7,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
-    canvas { display: block; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; }
 
     #ui {
       position: fixed;
@@ -94,6 +94,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      pointer-events: all;
     }
     .lang-btn {
       background: transparent;
@@ -119,6 +120,7 @@
       align-items: center;
       gap: 8px;
       z-index: 10;
+      pointer-events: all;
     }
     .lang-hud-btn {
       background: rgba(255,255,255,0.5);
@@ -1047,7 +1049,6 @@ document.addEventListener('pointermove', e => {
 
 let touches = {};
 renderer.domElement.addEventListener('touchstart', e => {
-  if (e.target !== renderer.domElement) return;
   [...e.changedTouches].forEach(t => { touches[t.identifier] = {x: t.clientX, y: t.clientY, moved: false}; });
 });
 renderer.domElement.addEventListener('touchmove', e => {
