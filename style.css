@@ -200,12 +200,13 @@ h1, h2, .page-title, .page-title-fit, .big-date, .side-number {
   transform: translateY(0);
 }
 
-.text-container { 
-  flex: 1; 
-  display: flex; 
-  align-items: center; 
+.text-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
   z-index: 10;
   height: 100%;
+  cursor: pointer;
 }
 
 .big-date {

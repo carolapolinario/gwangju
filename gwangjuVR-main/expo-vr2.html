@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="../favicon.ico" sizes="16x16"><link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gwangju 5.18</title>
+  <link rel="icon" href="../favicon.ico" sizes="any" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
-    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; }
-    #scene-touch { position: fixed; inset: 0; z-index: 1; display: none; touch-action: none; pointer-events: none; }
-    @media (pointer: coarse) { #scene-touch { pointer-events: auto; } }
+    canvas { display: block; }
 
     #ui {
       position: fixed;
@@ -50,11 +49,6 @@
     }
     #vr-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); }
     #vr-btn.hidden { display: none; }
-    #mobile-notice { display: none; color: rgba(255,255,255,0.6); font-size: 13px; letter-spacing: 0.12em; text-align: center; line-height: 1.7; max-width: 280px; }
-    @media (pointer: coarse) {
-      #overlay-sub, #enter-btn, #controls-hint, #touch-controls { display: none !important; }
-      #mobile-notice { display: block; }
-    }
 
     #overlay {
       position: fixed;
@@ -102,7 +96,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      pointer-events: all;
     }
     .lang-btn {
       background: transparent;
@@ -120,6 +113,29 @@
     .lang-btn.active { color: #fff; border-bottom: 1px solid rgba(255,255,255,0.5); }
     .lang-sep { color: rgba(255,255,255,0.2); font-size: 11px; }
 
+    #mobile-notice {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      color: rgba(255,255,255,0.8);
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-align: center;
+      text-transform: uppercase;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 40px;
+    }
+    @media (pointer: coarse) {
+      #mobile-notice { display: flex; }
+      #overlay .enter-btn { display: none; }
+      #overlay-sub { display: none; }
+      #controls-hint { display: none; }
+    }
+
     #lang-hud {
       position: fixed;
       top: 24px;
@@ -128,7 +144,6 @@
       align-items: center;
       gap: 8px;
       z-index: 10;
-      pointer-events: all;
     }
     .lang-hud-btn {
       background: rgba(255,255,255,0.5);
@@ -375,35 +390,34 @@
 </head>
 <body>
 
-<div id="scene-touch"></div>
+<div id="mobile-notice">Cette expérience est disponible uniquement sur l'ordinateur.</div>
 
 <div id="overlay">
   <h1>Gwangju 5.18</h1>
   <div id="lang-picker">
-    <button class="lang-btn active" data-lang="fr" onclick="_vrLang('fr')">FR</button>
+    <button class="lang-btn active" data-lang="fr">FR</button>
     <span class="lang-sep">·</span>
-    <button class="lang-btn" data-lang="en" onclick="_vrLang('en')">EN</button>
+    <button class="lang-btn" data-lang="en">EN</button>
     <span class="lang-sep">·</span>
-    <button class="lang-btn" data-lang="ko" onclick="_vrLang('ko')">한국어</button>
+    <button class="lang-btn" data-lang="ko">한국어</button>
   </div>
   <p id="overlay-sub">Avancez · Regardez à droite.</p>
-  <button class="enter-btn" id="enter-btn" onclick="_vrEnter()">Entrer</button>
-  <p id="mobile-notice">Cette expérience est disponible uniquement sur l'ordinateur.</p>
+  <button class="enter-btn" id="enter-btn">Entrer</button>
 </div>
 
 <div id="click-hint">Cliquez sur un panneau</div>
 
 <div id="ui">
-  <div id="controls-hint">W ou Z / S · Touches Fléchées · Souris</div>
+  <div id="controls-hint">W / S · Touches Fléchées · Souris</div>
   <button id="vr-btn" class="hidden">Entrer en VR</button>
 </div>
 
 <div id="lang-hud">
-  <button class="lang-hud-btn active" data-lang="fr" onclick="_vrLang('fr')">FR</button>
+  <button class="lang-hud-btn active" data-lang="fr">FR</button>
   <span class="lang-hud-sep">·</span>
-  <button class="lang-hud-btn" data-lang="en" onclick="_vrLang('en')">EN</button>
+  <button class="lang-hud-btn" data-lang="en">EN</button>
   <span class="lang-hud-sep">·</span>
-  <button class="lang-hud-btn" data-lang="ko" onclick="_vrLang('ko')">한국어</button>
+  <button class="lang-hud-btn" data-lang="ko">한국어</button>
 </div>
 
 <!-- mobile controls -->
@@ -434,51 +448,55 @@
   </div>
 </div>
 
-<script>
-// UI functions defined outside the module so they work even if WebGL fails
-var _vrTexts = {
-  fr: { sub: 'Avancez · Regardez à droite.', enter: 'Entrer', mobile: "Cette expérience est disponible uniquement sur l'ordinateur." },
-  en: { sub: 'Move forward · Look right.',   enter: 'Enter',  mobile: 'This experience is only available on desktop.' },
-  ko: { sub: '앞으로 이동 · 오른쪽을 보세요.',  enter: '입장',   mobile: '이 체험은 데스크톱에서만\n이용 가능합니다.' }
-};
-var _vrCurrentLang = (function() {
-  try { return localStorage.getItem('gwangju_lang') || 'fr'; } catch(e) { return 'fr'; }
-})();
-function _vrLang(code) {
-  _vrCurrentLang = code;
-  var t = _vrTexts[code];
-  if (t) {
-    document.getElementById('overlay-sub').textContent = t.sub;
-    document.getElementById('enter-btn').textContent = t.enter;
-    var mn = document.getElementById('mobile-notice');
-    if (mn) mn.innerHTML = t.mobile.replace('\n', '<br>');
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
   }
-  document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(function(b) {
-    b.classList.toggle('active', b.getAttribute('data-lang') === code);
-  });
-  if (window._vrApplyLangFull) window._vrApplyLangFull(code);
-}
-// Apply saved language on load
-document.addEventListener('DOMContentLoaded', function() {
-  _vrLang(_vrCurrentLang);
-});
-function _vrEnter() {
-  var overlay = document.getElementById('overlay');
-  overlay.style.opacity = '0';
-  setTimeout(function() {
-    overlay.style.display = 'none';
-    var st = document.getElementById('scene-touch');
-    if (st) st.style.display = 'block';
-    if (window._vrSceneActive !== undefined) window._vrSceneActive = true;
-  }, 600);
 }
 </script>
 
-<script type="module">
-// Do not initialize 3D engine on mobile/touch devices
-if (window.matchMedia('(pointer: coarse)').matches) { throw new Error('mobile'); }
+<script>
+(function() {
+  const LANG_KEY = 'gwangju_lang';
+  const saved = localStorage.getItem(LANG_KEY) || 'fr';
+  window._vrCurrentLang = saved;
 
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+  function setActiveLangBtns(code) {
+    document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === code);
+    });
+  }
+
+  window._vrLang = function(code) {
+    if (!code) code = 'fr';
+    window._vrCurrentLang = code;
+    localStorage.setItem(LANG_KEY, code);
+    setActiveLangBtns(code);
+    if (typeof window._vrApplyLangFull === 'function') {
+      window._vrApplyLangFull(code);
+    }
+  };
+
+  window._vrApplyLangFull = null;
+
+  document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      window._vrLang(btn.dataset.lang);
+    });
+  });
+
+  setActiveLangBtns(saved);
+})();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+if (window.matchMedia('(pointer: coarse)').matches) {
+  throw new Error('Mobile device detected – skipping WebGL init');
+}
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -534,19 +552,6 @@ sun.position.set(-2, 12, -8);
 sun.castShadow = false;
 scene.add(sun);
 scene.add(new THREE.HemisphereLight(0xe8ddc8, 0x906840, 0.4));
-
-// AVIF support detection
-let avifSupported = false;
-(function() {
-  const img = new Image();
-  img.onload = function() { avifSupported = (img.width > 0); };
-  img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAABcAAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAEAAAABAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABNjb2xybmNseAACAAIABoAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAAB9tZGF0EgAKBzgADlAgIGkyCR/wAABAAACvc2A=';
-})();
-
-function resolveImgUrl(url) {
-  if (!url || !avifSupported) return url;
-  return url.replace('images/', 'images/avif/').replace('.jpg', '.avif');
-}
 
 // panels
 const wallSurface = rightWallX - 0.075 - 0.002;
@@ -685,23 +690,6 @@ function panel(type, imgUrl, sectionIdx) {
   }
 
   const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88 });
-
-  if (type === 'large' && imgUrl) {
-    const img = new Image();
-    img.onload = function() {
-      const tex = new THREE.Texture(img);
-      tex.needsUpdate = true;
-      mat.map = tex;
-      mat.needsUpdate = true;
-    };
-    img.onerror = function() {
-      // AVIF failed, fall back to JPG
-      if (img.src !== imgUrl && img.src.indexOf(imgUrl) === -1) {
-        img.src = imgUrl;
-      }
-    };
-    img.src = resolveImgUrl(imgUrl);
-  }
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
   mesh.rotation.y = -Math.PI / 2;
   mesh.position.set(wallSurface, y, cursor);
@@ -1015,12 +1003,10 @@ function openLightbox(idx) {
   }
 
   lightbox.classList.add('open');
-  sceneTouchEl.style.display = 'none';
 }
 function closeLightbox() {
   lightbox.classList.remove('open');
   lbImg.src = '';
-  if (sceneActive) sceneTouchEl.style.display = 'block';
 }
 function showAdj(dir) {
   let next = currentIdx + dir;
@@ -1046,8 +1032,6 @@ let yaw = 0, pitch = 0;
 let isDragging = false, lastX = 0, lastY = 0;
 let mouseDownX = 0, mouseDownY = 0;
 let sceneActive = false;
-window._vrSceneActive = false;
-Object.defineProperty(window, '_vrSceneActive', { set: v => { sceneActive = v; }, get: () => sceneActive });
 const MIN_Z = -(CORRIDOR_LENGTH - 0.5), MAX_Z = -0.3;
 const MOUSE_SENS = 0.0025, TOUCH_SENS = 0.004;
 let camX = 0, camY = 1.65, camZ = -0.3;
@@ -1098,13 +1082,10 @@ document.addEventListener('pointermove', e => {
 });
 
 let touches = {};
-const sceneTouchEl = document.getElementById('scene-touch');
-
-sceneTouchEl.addEventListener('touchstart', e => {
+renderer.domElement.addEventListener('touchstart', e => {
   [...e.changedTouches].forEach(t => { touches[t.identifier] = {x: t.clientX, y: t.clientY, moved: false}; });
-}, { passive: true });
-
-sceneTouchEl.addEventListener('touchmove', e => {
+});
+renderer.domElement.addEventListener('touchmove', e => {
   e.preventDefault();
   [...e.changedTouches].forEach(t => {
     const prev = touches[t.identifier];
@@ -1116,8 +1097,7 @@ sceneTouchEl.addEventListener('touchmove', e => {
     touches[t.identifier] = {...prev, x: t.clientX, y: t.clientY};
   });
 }, { passive: false });
-
-sceneTouchEl.addEventListener('touchend', e => {
+renderer.domElement.addEventListener('touchend', e => {
   [...e.changedTouches].forEach(t => {
     const prev = touches[t.identifier];
     if (prev && !prev.moved && sceneActive && !lightbox.classList.contains('open')) {
@@ -1187,9 +1167,8 @@ const lang = {
   },
 };
 
-let currentLang = 'fr';
+let currentLang = window._vrCurrentLang || 'fr';
 
-window._vrApplyLangFull = function(code) { applyLang(code); };
 function applyLang(code) {
   currentLang = code;
   const t = lang[currentLang];
@@ -1202,19 +1181,25 @@ function applyLang(code) {
   document.querySelector('.t-next').textContent      = t.next;
   const vrBtn = document.getElementById('vr-btn');
   if (vrBtn) vrBtn.textContent = t.vr;
-  document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.lang === code);
-  });
   // update counter if lightbox open
   if (lightbox.classList.contains('open')) {
     lbCounter.textContent = t.counter(currentIdx + 1, panelImages.length);
   }
 }
 
-// overlay click on background also dismisses
+window._vrApplyLangFull = applyLang;
+applyLang(currentLang);
+
+// overlay
 const overlayEl = document.getElementById('overlay');
-overlayEl.addEventListener('click', e => {
-  if (e.target === overlayEl) _vrEnter();
+overlayEl.querySelector('.enter-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  overlayEl.style.opacity = '0';
+  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
+});
+overlayEl.addEventListener('click', () => {
+  overlayEl.style.opacity = '0';
+  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
 });
 
 // resize
@@ -1230,9 +1215,9 @@ const touchBack = document.getElementById('touch-back');
 const isMobile = () => window.innerWidth <= 768;
 
 function bindTouchWalk(el, keyCode) {
-  el.addEventListener('touchstart', e => { e.preventDefault(); keys[keyCode] = true; }, { passive: false });
-  el.addEventListener('touchend',   e => { e.preventDefault(); keys[keyCode] = false; }, { passive: false });
-  el.addEventListener('touchcancel', () => { keys[keyCode] = false; });
+  el.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); keys[keyCode] = true; }, { passive: false });
+  el.addEventListener('touchend',   e => { e.preventDefault(); e.stopPropagation(); keys[keyCode] = false; }, { passive: false });
+  el.addEventListener('touchcancel',e => { keys[keyCode] = false; });
 }
 bindTouchWalk(touchFwd,  'KeyW');
 bindTouchWalk(touchBack, 'KeyS');
@@ -1252,8 +1237,10 @@ const clickHint = document.getElementById('click-hint');
 
 renderer.setAnimationLoop(() => {
   if (!renderer.xr.isPresenting) {
-    if (keys['KeyW'] || keys['KeyZ'] || keys['ArrowUp'])    camZ -= MOVE_SPEED;
-    if (keys['KeyS'] || keys['ArrowDown'])                  camZ += MOVE_SPEED;
+    if (keys['KeyW'] || keys['KeyZ'] || keys['ArrowUp'])
+      camZ += new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(0,yaw,0)).z * MOVE_SPEED;
+    if (keys['KeyS'] || keys['ArrowDown'])
+      camZ -= new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(0,yaw,0)).z * MOVE_SPEED;
     camZ = Math.max(MIN_Z, Math.min(MAX_Z, camZ));
 
     camera.position.set(camX, camY, camZ);

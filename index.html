@@ -392,7 +392,7 @@
                     <img src="1-4.jpg" alt="Students protest at Chonnam National University, May 3–16 1980">
                     <div class="image-hover-label"><span>View in Gallery &#x2197;&#xFE0E;</span></div>
                 </a>
-                <div class="text-container">
+                <div class="text-container" onclick="location.href='history.html#protests'">
                     <h2 class="big-date" data-i18n="block1_date">3-16<br>MAY</h2>
                     <div class="description-box">
                         <p data-i18n="block1_text">The assassination of General Park on October 26, 1979 sparked widespread protests among the
@@ -409,7 +409,7 @@
                     <img src="2-5.jpg" alt="Paratroopers deployed in Gwangju streets, May 18–19 1980">
                     <div class="image-hover-label"><span>View in Gallery &#x2197;&#xFE0E;</span></div>
                 </a>
-                <div class="text-container">
+                <div class="text-container" onclick="location.href='history.html#repression'">
                     <h2 class="big-date" data-i18n="block2_date">18-19<br>MAY</h2>
                     <div class="description-box">
                         <p data-i18n="block2_text">During the night of May 17, the military junta announced "the extension of the state of
@@ -426,7 +426,7 @@
                     <img src="3-8.jpg" alt="Citizens uprising spreads through Gwangju, May 20–21 1980">
                     <div class="image-hover-label"><span>View in Gallery &#x2197;&#xFE0E;</span></div>
                 </a>
-                <div class="text-container">
+                <div class="text-container" onclick="location.href='history.html#uprising'">
                     <h2 class="big-date" data-i18n="block3_date">20-21<br>MAY</h2>
                     <div class="description-box">
                         <p data-i18n="block3_text">On May 20, as the movement's support base expanded considerably, winning over large sections
@@ -442,7 +442,7 @@
                     <img src="4-16.jpg" alt="Citizen militia organises during the liberation of Gwangju, May 22–26 1980">
                     <div class="image-hover-label"><span>View in Gallery &#x2197;&#xFE0E;</span></div>
                 </a>
-                <div class="text-container">
+                <div class="text-container" onclick="location.href='history.html#resistance'">
                     <h2 class="big-date" data-i18n="block4_date">22-26<br>MAY</h2>
                     <div class="description-box">
                         <p data-i18n="block4_text">After the withdrawal of troops, the main roads leading to other regions were blocked and
@@ -459,7 +459,7 @@
                     <img src="5-1.jpg" alt="Final military assault on the Provincial Government Office, May 27 1980">
                     <div class="image-hover-label"><span>View in Gallery &#x2197;&#xFE0E;</span></div>
                 </a>
-                <div class="text-container">
+                <div class="text-container" onclick="location.href='history.html#suppression'">
                     <h2 class="big-date" data-i18n="block5_date">27<br>MAY</h2>
                     <div class="description-box">
                         <p data-i18n="block5_text">The military regime prepares its final suppression operation by deploying the 11th Airborne
@@ -477,7 +477,7 @@
                     <img src="6-5.jpg" alt="Mourning and commemoration of the Gwangju victims, 1980 to present">
                     <div class="image-hover-label"><span>View in Gallery &#x2197;&#xFE0E;</span></div>
                 </a>
-                <div class="text-container">
+                <div class="text-container" onclick="location.href='history.html#mourning'">
                     <h2 class="big-date" data-i18n="block6_date">1980-<br>NOW</h2>
                     <div class="description-box">
                         <p data-i18n="block6_text">In Gwangju, the memory of the events of May 1980 remains an open wound, kept alive through
@@ -721,6 +721,7 @@
         document.querySelectorAll('.text-container').forEach(function(el) {
             var link = el.getAttribute('onclick');
             el.addEventListener('touchstart', function(e) {
+                if (e.target.closest('.read-more')) return;
                 if (activeText && activeText !== el) {
                     activeText.classList.remove('touch-active');
                 }
@@ -728,6 +729,8 @@
                     e.preventDefault();
                     el.classList.add('touch-active');
                     activeText = el;
+                } else if (link) {
+                    eval(link);
                 }
             }, { passive: false });
         });
