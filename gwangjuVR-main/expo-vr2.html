@@ -129,7 +129,7 @@
       z-index: 9999;
       padding: 40px;
     }
-    @media (pointer: coarse) {
+    @media (hover: none) and (pointer: coarse) {
       #mobile-notice { display: flex; }
       #overlay .enter-btn { display: none; }
       #overlay-sub { display: none; }
@@ -462,6 +462,12 @@
   const saved = localStorage.getItem(LANG_KEY) || 'fr';
   window._vrCurrentLang = saved;
 
+  const mobileNotice = {
+    fr: "Cette expérience est disponible uniquement sur l'ordinateur.",
+    en: "This experience is only available on desktop.",
+    ko: "이 경험은 데스크탑에서만 이용 가능합니다.",
+  };
+
   function setActiveLangBtns(code) {
     document.querySelectorAll('.lang-btn, .lang-hud-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.lang === code);
@@ -473,6 +479,8 @@
     window._vrCurrentLang = code;
     localStorage.setItem(LANG_KEY, code);
     setActiveLangBtns(code);
+    const notice = document.getElementById('mobile-notice');
+    if (notice) notice.textContent = mobileNotice[code] || mobileNotice.fr;
     if (typeof window._vrApplyLangFull === 'function') {
       window._vrApplyLangFull(code);
     }
@@ -487,14 +495,15 @@
     });
   });
 
-  setActiveLangBtns(saved);
+  // apply saved lang immediately (buttons + mobile notice text)
+  window._vrLang(saved);
 })();
 </script>
 
 <script type="module">
 import * as THREE from 'three';
 
-if (window.matchMedia('(pointer: coarse)').matches) {
+if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
   throw new Error('Mobile device detected – skipping WebGL init');
 }
 
