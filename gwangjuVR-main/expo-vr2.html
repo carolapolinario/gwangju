@@ -474,6 +474,12 @@
     });
   }
 
+  const uiStrings = {
+    fr: { sub: 'Avancez · Regardez à droite.', enter: 'Entrer', controls: 'W ou Z / S · Touches Fléchées · Souris', hint: 'Cliquez sur un panneau' },
+    en: { sub: 'Move forward · Look right.',   enter: 'Enter',  controls: 'W or Z / S · Arrow Keys · Mouse',        hint: 'Click a panel to view' },
+    ko: { sub: '앞으로 이동 · 오른쪽을 보세요.', enter: '입장',   controls: 'W / S · 방향키 · 마우스',                  hint: '패널을 클릭하세요' },
+  };
+
   window._vrLang = function(code) {
     if (!code) code = 'fr';
     window._vrCurrentLang = code;
@@ -481,6 +487,15 @@
     setActiveLangBtns(code);
     const notice = document.getElementById('mobile-notice');
     if (notice) notice.textContent = mobileNotice[code] || mobileNotice.fr;
+    const ui = uiStrings[code] || uiStrings.fr;
+    const sub = document.getElementById('overlay-sub');
+    if (sub) sub.textContent = ui.sub;
+    const enterBtn = document.getElementById('enter-btn');
+    if (enterBtn) enterBtn.textContent = ui.enter;
+    const controlsHint = document.getElementById('controls-hint');
+    if (controlsHint) controlsHint.textContent = ui.controls;
+    const clickHint = document.getElementById('click-hint');
+    if (clickHint) clickHint.textContent = ui.hint;
     if (typeof window._vrApplyLangFull === 'function') {
       window._vrApplyLangFull(code);
     }
@@ -503,9 +518,8 @@
 <script type="module">
 import * as THREE from 'three';
 
-if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
-  throw new Error('Mobile device detected – skipping WebGL init');
-}
+(function() {
+if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -1275,6 +1289,7 @@ renderer.setAnimationLoop(() => {
   }
   renderer.render(scene, camera);
 });
+})();
 </script>
 </body>
 </html>
