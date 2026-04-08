@@ -512,6 +512,29 @@
 
   // apply saved lang immediately (buttons + mobile notice text)
   window._vrLang(saved);
+
+  // overlay dismiss — independent of Three.js module
+  window._vrSceneActive = false;
+  function dismissOverlay() {
+    const overlay = document.getElementById('overlay');
+    if (!overlay || overlay.style.display === 'none') return;
+    overlay.style.opacity = '0';
+    setTimeout(function() {
+      overlay.style.display = 'none';
+      window._vrSceneActive = true;
+    }, 600);
+  }
+  const _enterBtn = document.getElementById('enter-btn');
+  if (_enterBtn) {
+    _enterBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dismissOverlay();
+    });
+  }
+  const _overlay = document.getElementById('overlay');
+  if (_overlay) {
+    _overlay.addEventListener('click', dismissOverlay);
+  }
 })();
 </script>
 
@@ -1052,6 +1075,8 @@ let yaw = 0, pitch = 0;
 let isDragging = false, lastX = 0, lastY = 0;
 let mouseDownX = 0, mouseDownY = 0;
 let sceneActive = false;
+// sync with pre-module flag (set when overlay is dismissed)
+setInterval(() => { if (window._vrSceneActive && !sceneActive) sceneActive = true; }, 100);
 const MIN_Z = -(CORRIDOR_LENGTH - 0.5), MAX_Z = -0.3;
 const MOUSE_SENS = 0.0025, TOUCH_SENS = 0.004;
 let camX = 0, camY = 1.65, camZ = -0.3;
@@ -1209,18 +1234,6 @@ function applyLang(code) {
 
 window._vrApplyLangFull = applyLang;
 applyLang(currentLang);
-
-// overlay
-const overlayEl = document.getElementById('overlay');
-overlayEl.querySelector('.enter-btn').addEventListener('click', e => {
-  e.stopPropagation();
-  overlayEl.style.opacity = '0';
-  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
-});
-overlayEl.addEventListener('click', () => {
-  overlayEl.style.opacity = '0';
-  setTimeout(() => { overlayEl.style.display = 'none'; sceneActive = true; }, 600);
-});
 
 // resize
 window.addEventListener('resize', () => {
