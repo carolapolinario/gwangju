@@ -518,8 +518,7 @@
 <script type="module">
 import * as THREE from 'three';
 
-(function() {
-if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) throw new Error('mobile');
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -1289,7 +1288,6 @@ renderer.setAnimationLoop(() => {
   }
   renderer.render(scene, camera);
 });
-})();
 </script>
 </body>
 </html>
