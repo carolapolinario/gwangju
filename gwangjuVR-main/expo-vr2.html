@@ -537,6 +537,21 @@
   }
 })();
 </script>
+<script>
+window.addEventListener('unhandledrejection', function(e) {
+  var msg = (e.reason && (e.reason.message || String(e.reason))) || String(e);
+  var el = document.createElement('pre');
+  el.style.cssText = 'position:fixed;top:0;left:0;z-index:99999;background:red;color:#fff;padding:12px;font-size:13px;max-width:100vw;white-space:pre-wrap;';
+  el.textContent = 'MODULE ERROR: ' + msg;
+  document.body.appendChild(el);
+});
+window.addEventListener('error', function(e) {
+  var el = document.createElement('pre');
+  el.style.cssText = 'position:fixed;top:40px;left:0;z-index:99999;background:darkred;color:#fff;padding:12px;font-size:13px;max-width:100vw;white-space:pre-wrap;';
+  el.textContent = 'JS ERROR: ' + e.message + ' @ line ' + e.lineno;
+  document.body.appendChild(el);
+});
+</script>
 
 <script type="module">
 import * as THREE from 'three';
